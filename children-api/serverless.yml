@@ -1,0 +1,62 @@
+service: 'children-api'
+
+frameworkVersion: '3'
+
+# Cloud provider
+provider: 
+  name: 'aws'
+  runtime: 'nodejs16.x'
+  region: eu-west-2
+  stage: dev
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+          # arn:aws:dynamodb:eu-west-2:634692860368:table/NurseryChildren
+
+# Serverless functions
+functions: 
+  getChildren: 
+    handler: src/functions/children.getChildren
+    description: 'Information about the nursery children'
+    events:
+      - httpApi:
+          path: /children
+          method: get
+  createChildren:
+    handler: src/functions/children.createChildren
+    description: 'Insert a new nursery kid'
+    events:
+      - httpApi:
+          path: /children
+          method: post
+  meals: 
+    handler: src/functions/meals.handler
+    description: 'Information about the nursery meals'
+    events:
+      - httpApi:
+          path: /meals
+          method: get      
+
+# Serverless plugins
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+  
+custom:
+  serverless-offline:
+    httpPort: 3003
+
+# Resources your functions use
+resources: 
+
