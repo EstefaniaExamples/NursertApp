@@ -50,12 +50,17 @@ functions:
 
 # Serverless plugins
 plugins:
+  # - serverless-offline
+  # - serverless-esbuild
   - serverless-plugin-typescript
-  - serverless-offline
-  
-custom:
-  serverless-offline:
-    httpPort: 3003
+
+# custom:
+#   esbuild:
+#     bundle: true  # Esbuild requires this for use with externa
+#     minify: false
+#   serverless-offline:
+#     host: 'localhost'
+#     httpPort: 3000
 
 # Resources your functions use
 resources: 

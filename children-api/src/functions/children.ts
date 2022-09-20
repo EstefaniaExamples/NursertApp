@@ -1,8 +1,7 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import middy from '@middy/core';
-// Import required AWS SDK clients and commands for Node.js
-import { QueryCommand } from "@aws-sdk/client-dynamodb";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { ddbClient } from '@libs/ddbClient';
 import { ddbDocClient } from '@libs/ddbDocClient';
 
