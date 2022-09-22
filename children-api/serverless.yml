@@ -50,17 +50,23 @@ functions:
 
 # Serverless plugins
 plugins:
-  # - serverless-offline
-  # - serverless-esbuild
+  - serverless-offline
   - serverless-plugin-typescript
+  # - serverless-dynamodb-local
 
-# custom:
-#   esbuild:
-#     bundle: true  # Esbuild requires this for use with externa
-#     minify: false
-#   serverless-offline:
-#     host: 'localhost'
-#     httpPort: 3000
+custom:
+  # webpack:
+  #   webpackConfig: ./webpack.config.js
+  #   includeModules: true
+  serverless-offline:
+    httpPort: 3003
+  dynamodb:
+    start:
+      port: 5000
+      inMemory: true
+      migrate: true
+    stages:
+      - dev
 
 # Resources your functions use
 resources: 

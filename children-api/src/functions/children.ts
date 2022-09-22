@@ -2,8 +2,8 @@ import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import middy from '@middy/core';
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { ddbClient } from '@libs/ddbClient';
-import { ddbDocClient } from '@libs/ddbDocClient';
+import { ddbClient } from '../libs/ddbClient.js';
+import { ddbDocClient } from '../libs/ddbDocClient.js';
 
 
 const childrenPutFunction = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>{
@@ -11,9 +11,11 @@ const childrenPutFunction = async (event: APIGatewayProxyEvent): Promise<APIGate
     const newKidParams = {
         TableName: "children-api-dev",
         Item: {
-          primaryKey: "'Id': 2", // For example, 'Season': 2
-          sortKey: "'Name': Antia", // For example,  'Episode': 2 (only required if table has sort key)
-          Birthday: "05/03/2022", //For example 'Title': 'The Beginning'
+            "artist":  "song.artist",
+            "song": "song.song",
+            "id":  "song.id",
+            "priceUsdCents": "song.priceUsdCents",
+            "publisher": "song.publisher"
         },
       };
 
@@ -37,13 +39,15 @@ const childrenGetFunction = async (event: APIGatewayProxyEvent): Promise<APIGate
     console.log("INFO: Starting children handler")
     try {
         const getParams = {
-            // Set the projection expression, which the the attributes that you want.
-            ProjectionExpression: "Name, Surname",
+            KeyConditionExpression: 'begins_with ( Name , :n )',
+            ExpressionAttributeValues: {
+                ":n": { S: "A" },
+              },
             TableName: "children-api-dev",
         };
-        console.log(getParams)
+        console.log("Params: " + getParams)
         const data = await ddbClient.send(new QueryCommand(getParams));
-        console.log(data.Items)
+        console.log("Data items: " + data.Items)
         data.Items.forEach(function (element) {
           console.log(element.Name.S + " (" + element.Surname.S + ")");
         });
