@@ -35,28 +35,25 @@ const childrenPutFunction = async (event: APIGatewayProxyEvent): Promise<APIGate
     };
 }  
 
-const childrenGetFunction = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>{
+const childrenGetFunction = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>{
     console.log("INFO: Starting children handler")
     try {
         const getParams = {
-            KeyConditionExpression: 'begins_with ( Name , :n )',
+            KeyConditionExpression: 'KidId=:n',
             ExpressionAttributeValues: {
-                ":n": { S: "A" },
+                ":n": { N: "0" },
               },
             TableName: "children-api-dev",
         };
-        console.log("Params: " + getParams)
         const data = await ddbClient.send(new QueryCommand(getParams));
-        console.log("Data items: " + data.Items)
+        const kidsList: String[] = [];
         data.Items.forEach(function (element) {
-          console.log(element.Name.S + " (" + element.Surname.S + ")");
+          kidsList.push(element.KidName.S + " " +  element.KidSurname.S + " ("  +  element.BirthDate.S + ")")
         });
         return {
             statusCode: 200,
-            body: JSON.stringify(
-                {
-                    message: 'Go Serverless v1.0! Your function executed successfully!',
-                    input: event,
+            body: JSON.stringify({
+                    children: kidsList,
                 },
                 null,
                 2

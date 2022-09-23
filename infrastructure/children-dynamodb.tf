@@ -21,15 +21,20 @@ resource "aws_dynamodb_table" "children-dynamodb-table" {
     type = "S"
   }
 
+  attribute {
+    name = "BirthDate"
+    type = "S"
+  }
+
   ttl {
     attribute_name = "TimeToExist"
     enabled        = false
   }
 
   global_secondary_index {
-    name               = "KidNameIndex"
-    hash_key           = "KidName"
-    range_key          = "KidSurname"
+    name               = "BirthDateIndex"
+    hash_key           = "BirthDate"
+    range_key          = "KidName"
     write_capacity     = 5
     read_capacity      = 5
     projection_type    = "INCLUDE"
