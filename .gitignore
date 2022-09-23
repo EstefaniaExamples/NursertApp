@@ -1,0 +1,15 @@
+# package directories
+children-api/node_modules
+children-api/jspm_packages
+
+# Serverless directories
+children-api/.serverless
+children-api/.build
+
+children-api/.DS_Store
+
+# Terraform directories
+infrastructure/.terraform
+infrastructure/.terraform.lock.hcl
+infrastructure/terraform.tfstate
+infrastructure/terraform.tfstate.backup

@@ -39,7 +39,7 @@ functions:
     events:
       - httpApi:
           path: /children
-          method: post
+          method: put
   meals: 
     handler: src/functions/meals.handler
     description: 'Information about the nursery meals'
