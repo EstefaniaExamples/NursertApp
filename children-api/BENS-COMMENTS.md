@@ -1,10 +1,14 @@
 # Ben's Comments
 
-## Gitignore
-
 ## Style
 
-Single quotes, yo,
+I prefer single quotes to doubles, others prefer the opposite - regardless, pick one and stick to it :D
+
+To help with the above, a linter would be a good idea, the standard being `eslint`
+
+On top of that, something like `prettier`, which prides itself on being opinionated is a formatter and style guide would be good to set a single "this is how the code looks" standard
+
+As "cool" as it is to say "the entire industry does this but I'm going to choose this other thing", like with composing your own testing framework out of ten different libraries that may or may not work together... it's better for everyone working on your project to be able to pick it up and know without question how the code should look
 
 ## Model
 
