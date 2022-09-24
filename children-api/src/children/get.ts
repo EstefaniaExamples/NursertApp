@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import middy from '@middy/core';
-import { QueryCommand } from '@aws-sdk/client-dynamodb';
+import { ScanCommand } from '@aws-sdk/client-dynamodb';
 
 // I tend to keep my local imports separate from library imports, just a
 //  preference thing I suppose
@@ -12,17 +12,23 @@ import { simpleHttpResponse } from '../util';
 
 const get = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('INFO: Starting children handler')
+
   // There's no point in separating the object and the command into variable
   //  and call... just do it on the one line - particularly with JS you see a
   //  lot of *very* large calls with a great many nested objects, arguably
   //  untidy but I much prefer it to seeing a call with ten variables in it
   //  which I then need to go and find elsewhere...
-  const data = await ddbClient.send(new QueryCommand({
-    KeyConditionExpression: 'KidId=:n',
-    ExpressionAttributeValues: {
-      ':n': { N: '0' },
-    },
-    TableName: 'children-api-dev',
+  // This comment was originally for this block:
+  //       const data = await ddbClient.send(new QueryCommand({
+  //         KeyConditionExpression: 'KidId=:n',
+  //         ExpressionAttributeValues: {
+  //           ':n': { N: '0' },
+  //         },
+  //         TableName: 'children-api-dev',
+  //       }));
+  //  but works here too
+  const data = await ddbClient.send(new ScanCommand({
+    TableName: 'children-api-dev'
   }));
 
   // Instead of creating a mutable array (`[]`), iterating another array
@@ -41,12 +47,20 @@ const get = async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult>
   // They're also more flexible, multi-line strings are supported by default,
   //  you can embed expressions (e.g. `${1 + 2}`), etc.
   //
+  // You can also use the optional chaining operator to avoid that `if (x ==
+  //  undefined)` block, this way the rest of the chain is only ran if
+  //  `data.Items` is not nullish
+  //
   // It's also quite rare to see the `function() {}` syntax these days, the only
   //  benefit is preservation of the `this` keyword... but as `this` doesn't
   //  mean much of value here, an arrow function (`() => {}`) is more common
-  const kidsList: String[] = data.Items.map(
+  //
+  // Finally `String` is the Javascript type, not literal strings, nor
+  //  Typescript strings, the type annotation you're after is `string` (that is
+  //  unless you have a reason I missed)
+  const kidsList: string[] = data.Items?.map(
     element => `${element.KidName.S} ${element.KidSurname.S} (${element.BirthDate.S})`
-  );
+  ) || [];
 
   return simpleHttpResponse({ children: kidsList })
 };

@@ -1,2 +1,14 @@
+# If you have multiple application directories at some point, say your main code
+#  and some supporting tool, then there's no benefit of specifying `node_modules`
+#  multiple times, just do it once and it'll apply to all subdirectories, same
+#  with the .terraform ones
 .DS_Store
+
+.serverless
+.build
 node_modules
+jspm_packages
+
+.terraform
+.terraform.lock.hcl
+terraform.tfstate*

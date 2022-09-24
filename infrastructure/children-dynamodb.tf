@@ -8,16 +8,11 @@ resource "aws_dynamodb_table" "children-dynamodb-table" {
 
   attribute {
     name = "KidId"
-    type = "N"
-  }
-
-  attribute {
-    name = "KidName"
     type = "S"
   }
 
   attribute {
-    name = "KidSurname"
+    name = "KidName"
     type = "S"
   }
 
