@@ -21,7 +21,7 @@ const put = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> 
   const newKidParams = {
     TableName: "children-api-dev",
     // I would create a type for this which describes this particular table,
-    //  without types is an how your end up with 100 artists and 10 artsts
+    //  without types is how you end up with 100 "artists" and 10 "artsts"
     // It doesn't matter that `PutCommand` isn't aware of your custom type as
     //  your DB-suitable type will conform the to the expected:
     //       Item: Record<string, NativeAttributeValue> | undefined;
@@ -46,7 +46,6 @@ const put = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> 
   return simpleHttpResponse({ item }, 201);
 }
 
-// This is 
 const wrapper = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
   put(event).catch((err: any) => {
     if (err instanceof ZodError) {
