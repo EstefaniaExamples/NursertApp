@@ -1,15 +1,14 @@
-# package directories
-children-api/node_modules
-children-api/jspm_packages
+# If you have multiple application directories at some point, say your main code
+#  and some supporting tool, then there's no benefit of specifying `node_modules`
+#  multiple times, just do it once and it'll apply to all subdirectories, same
+#  with the .terraform ones
+.DS_Store
 
-# Serverless directories
-children-api/.serverless
-children-api/.build
+.serverless
+.build
+node_modules
+jspm_packages
 
-children-api/.DS_Store
-
-# Terraform directories
-infrastructure/.terraform
-infrastructure/.terraform.lock.hcl
-infrastructure/terraform.tfstate
-infrastructure/terraform.tfstate.backup
+.terraform
+.terraform.lock.hcl
+terraform.tfstate*

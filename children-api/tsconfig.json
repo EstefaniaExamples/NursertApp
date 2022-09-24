@@ -10,7 +10,7 @@
     "target": "ES2020",
     "outDir": "lib",
     "allowJs": true,
-    "strict": true,
+    "strict": true
   },
   "include": ["src/**/*.ts", "serverless.yml"],
   "exclude": [
@@ -22,5 +22,6 @@
   ],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
-  }
+  },
+  "types": ["jest"]
 }
