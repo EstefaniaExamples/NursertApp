@@ -60,7 +60,7 @@ The project code base is mainly located within the `src` folder. This folder is 
 - `functions` - containing code base and configuration for your lambda functions
 - `libs` - containing shared code base between your lambdas
 
-```
+```txt
 .
 ├── src
 │   ├── functions               # Lambda configuration and source code folder

@@ -27,21 +27,21 @@ provider:
 # Serverless functions
 functions: 
   getChildren: 
-    handler: src/functions/children.getChildren
+    handler: src/children/get.handler
     description: 'Information about the nursery children'
     events:
       - httpApi:
           path: /children
           method: get
   createChildren:
-    handler: src/functions/children.createChildren
+    handler: src/children/put.handler
     description: 'Insert a new nursery kid'
     events:
       - httpApi:
           path: /children
-          method: post
+          method: put
   meals: 
-    handler: src/functions/meals.handler
+    handler: src/meals/eat.handler
     description: 'Information about the nursery meals'
     events:
       - httpApi:
@@ -69,5 +69,4 @@ custom:
       - dev
 
 # Resources your functions use
-resources: 
-
+# resources: 
