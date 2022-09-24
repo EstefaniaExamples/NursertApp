@@ -12,9 +12,10 @@ import { kidSchema } from '../kid';
 const put = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log(event.body)
 
-  // I'd possible return a different error if the body doesn't exist, I know
-  //  it'll come through as a Zod validation error in the `.catch` below but I'd
+  // I'd possiblu return a different error if the body doesn't exist, I know
+  //  it'll come through as a generic error in the `.catch` below but I'd
   //  argue that "body doesn't exist" is different to "body doesn't conform"
+  //  and deserves a specific error
   const item = kidSchema.parse(JSON.parse(event.body!))
 
   const newKidParams = {
