@@ -1,15 +1,15 @@
+import { ScanCommand } from '@aws-sdk/client-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 import middy from '@middy/core'
-import { ScanCommand } from '@aws-sdk/client-dynamodb'
 
 import { ddbClient } from '../dynamodb.js'
 import { simpleHttpResponse } from '../util.js'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const get = async (
-  _event: APIGatewayProxyEvent
+const deleteItem = async (
+  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  console.log('INFO: Starting children handler')
+  console.log('Starting delete children handler')
+  console.log(`Path param ${event.pathParameters?.['id']}`)
 
   return await ddbClient
     .send(
@@ -17,21 +17,14 @@ const get = async (
         TableName: 'children-api-dev',
       })
     )
-    .then(
-      data =>
-        data.Items?.map(
-          element =>
-            `${element.KidId.S} => ${element.KidName.S} ${element.KidSurname.S} (${element.BirthDate.S})`
-        ) || []
-    )
-    .then(kidsList => simpleHttpResponse({ children: kidsList }))
+    .then(data => simpleHttpResponse({ kid: data.Items }))
 }
 
 const wrapper = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get(event).catch((err: any) =>
+  deleteItem(event).catch((err: any) =>
     simpleHttpResponse({ message: err.message }, 500)
   )
 

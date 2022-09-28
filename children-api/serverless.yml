@@ -47,6 +47,13 @@ functions:
       - httpApi:
           path: /children
           method: put
+  deleteChildren:
+    handler: src/children/deleteById.handler
+    description: 'Delete a nursery kid'
+    events:
+      - httpApi:
+          path: /children/{id}
+          method: delete
   meals: 
     handler: src/meals/eat.handler
     description: 'Information about the nursery meals'
