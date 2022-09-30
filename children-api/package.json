@@ -11,7 +11,7 @@
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "shx rm -rf dist/*",
-    "build": "npm run clean && tsc -p tsconfig.json"
+    "build": "npm run clean && tsc --project tsconfig.json"
   },
   "engines": {
     "node": ">=16.16.0"

@@ -30,14 +30,6 @@ jobs:
       - name: Install serverless globally
         run: npm install -g serverless
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v1
-      #   with:
-      #     aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
-      #     audience: 'sts.amazonaws.com'
-
       - uses: actions/cache@v3
         with: 
           path: ~/.npm
@@ -54,6 +46,14 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
+      #     audience: 'sts.amazonaws.com'
           
       - name: Serverless Deploy       
         uses: serverless/github-action@master

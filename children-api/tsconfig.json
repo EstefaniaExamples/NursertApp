@@ -12,7 +12,8 @@
     "target": "ES2020",
     "outDir": "lib",
     "allowJs": true,
-    "strict": true
+    "strict": true,
+    "strictNullChecks": true
   },
   "include": ["src/**/*.ts", "serverless.yml"],
   "exclude": [
@@ -21,7 +22,8 @@
     ".serverless/**/*",
     ".webpack/**/*",
     "_warmup/**/*",
-    ".vscode/**/*"
+    ".vscode/**/*",
+    "**/*.spec.ts"
   ],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
