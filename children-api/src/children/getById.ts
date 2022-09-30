@@ -19,6 +19,7 @@ const get = async (
             ':id': { S: event.pathParameters?.['id'] || '' },
           },
           TableName: 'children-api-dev',
+          ConsistentRead: true
         })
       )
       .then(data => simpleHttpResponse({ kid: data.Items }))

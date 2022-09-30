@@ -12,7 +12,13 @@
       "plugin:@typescript-eslint/recommended",
       "prettier"
     ],
+    "ignorePatterns": ["dist/"],
     "rules": { 
+      "complexity": ["error", 10],
+      "no-inner-declarations": 0, 
+      "@typescript-eslint/camelcase": 0,
+      "@typescript-eslint/naming-convention": 0,
+      "dot-notation": 0,
       "no-console": 0
     }
   }

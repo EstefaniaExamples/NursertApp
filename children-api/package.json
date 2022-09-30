@@ -9,7 +9,9 @@
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "test": "jest --config ./jest.config.ts",
     "start": "./node_modules/.bin/serverless offline -s dev",
-    "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev"
+    "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
+    "clean": "shx rm -rf dist/*",
+    "build": "npm run clean && tsc -p tsconfig.json"
   },
   "engines": {
     "node": ">=16.16.0"
@@ -32,6 +34,7 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
+    "aws-sdk-client-mock": "^2.0.0",
     "esbuild": "^0.14.54",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
@@ -45,6 +48,7 @@
     "serverless-offline": "^10.1.0",
     "serverless-plugin-optimize": "^4.2.1-rc.1",
     "serverless-plugin-typescript": "^2.1.2",
+    "shx": "^0.3.4",
     "ts-jest": "^29.0.1",
     "ts-node": "^10.4.0",
     "tsconfig-paths": "^3.9.0",

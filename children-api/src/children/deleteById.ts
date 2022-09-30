@@ -1,8 +1,8 @@
-import { ScanCommand } from '@aws-sdk/client-dynamodb'
+import { ExecuteStatementCommand, QueryCommand } from '@aws-sdk/client-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 import middy from '@middy/core'
 
-import { ddbClient } from '../dynamodb.js'
+import { ddbDocClient } from '../dynamodb.js'
 import { simpleHttpResponse } from '../util.js'
 
 const deleteItem = async (
@@ -11,13 +11,35 @@ const deleteItem = async (
   console.log('Starting delete children handler')
   console.log(`Path param ${event.pathParameters?.['id']}`)
 
-  return await ddbClient
+  return await ddbDocClient
+
     .send(
-      new ScanCommand({
+      new QueryCommand({
+        KeyConditionExpression: 'KidId = :id',
+        ExpressionAttributeValues: {
+          ':id': { S: event.pathParameters?.['id'] || '' },
+        },
         TableName: 'children-api-dev',
       })
     )
-    .then(data => simpleHttpResponse({ kid: data.Items }))
+
+    .then(data => data.Items?.map(element => element.KidId.S))
+
+    .then(dataIds => {
+      const id: string = dataIds?.[0] || ''
+      console.log(`Deleting item ${id}`)
+      if (id.length > 0) {
+        ddbDocClient.send(
+          new ExecuteStatementCommand({
+            Statement: 'DELETE FROM children-api-dev where kidId=?',
+            Parameters: [{ S: id }],
+          })
+        )
+        return simpleHttpResponse({ message: 'Item successfuly deleted' })
+      } else {
+        return simpleHttpResponse({ message: 'Item not found' }, 404)
+      }
+    })
 }
 
 const wrapper = async (

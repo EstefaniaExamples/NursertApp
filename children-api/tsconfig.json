@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "lib": ["ESNext"],
+    // AWS Javascript SDK v3 - Typescript doesnt compile due to error TS2304: Cannot find name ReadableStream
+    // Turned out that in order for typescript to find the Blob, File etc. names I had to add the dom entry to the lib in my tsconfig.json. 
+    "lib": ["ESNext", "dom"],
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -14,6 +16,7 @@
   },
   "include": ["src/**/*.ts", "serverless.yml"],
   "exclude": [
+    "dist/**/*",
     "node_modules/**/*",
     ".serverless/**/*",
     ".webpack/**/*",

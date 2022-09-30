@@ -16,28 +16,30 @@ const put = async (
   if (event.body) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const item = kidSchema.parse(JSON.parse(event.body!))
+    return await ddbDocClient
+      .send(
+        new PutCommand({
+          TableName: 'children-api-dev',
+          // I would create a type for this which describes this particular table,
+          //  without types is how you end up with 100 "artists" and 10 "artsts"
+          // It doesn't matter that `PutCommand` isn't aware of your custom type as
+          //  your DB-suitable type will conform the to the expected:
+          //       Item: Record<string, NativeAttributeValue> | undefined;
+          //  and TS will happily pass between the types
+          Item: {
+            KidId: uuidv4(),
+            KidName: item.KidName,
+            KidSurname: item.KidSurname,
+            BirthDate: item.BirthDate,
+            Address: item.Address,
+          },
+        })
+      )
 
-    const newKidParams = {
-      TableName: 'children-api-dev',
-      // I would create a type for this which describes this particular table,
-      //  without types is how you end up with 100 "artists" and 10 "artsts"
-      // It doesn't matter that `PutCommand` isn't aware of your custom type as
-      //  your DB-suitable type will conform the to the expected:
-      //       Item: Record<string, NativeAttributeValue> | undefined;
-      //  and TS will happily pass between the types
-      Item: {
-        KidId: uuidv4(),
-        KidName: item.KidName,
-        KidSurname: item.KidSurname,
-        BirthDate: item.BirthDate,
-        Address: item.Address,
-      },
-    }
-
-    const data = await ddbDocClient.send(new PutCommand(newKidParams))
-    console.log('Success - item added or updated', data)
-
-    return simpleHttpResponse({ item }, 201)
+      .then(data => {
+        console.log('Success - item added or updated', data)
+        return simpleHttpResponse({ item }, 201)
+      })
   } else {
     return simpleHttpResponse({ message: 'The body cannot be empty' }, 400)
   }
