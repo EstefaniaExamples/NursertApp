@@ -2,7 +2,7 @@ name: Deploy to Amazon Lambda
 
 defaults:
   run:
-    working-directory: ./children-api # The working directory path
+    working-directory: ../children-api # The working directory path
 
 env:
   AWS_REGION: eu-west-2
