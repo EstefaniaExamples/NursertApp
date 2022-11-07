@@ -1,28 +1,27 @@
 import { APIGatewayProxyResult } from 'aws-lambda'
 import { ScanCommand } from '@aws-sdk/client-dynamodb'
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
-import { ddbClient } from '../dynamodb.js'
-import { simpleHttpResponse } from '../util.js'
+import { ddbDocClient } from '../dynamodb'
+import { simpleHttpResponse } from '../util'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const get = async (): Promise<APIGatewayProxyResult> => {
   console.log('INFO: Starting get all kids handler')
 
-  return await ddbClient
-    .send(
-      new ScanCommand({
-        TableName: 'children-api-dev',
-        ConsistentRead: true
-      })
-    )
-    .then(
-      data =>
-        data.Items?.map(
-          element =>
-            `${element.KidId.S} => ${element.KidName.S} ${element.KidSurname.S} (${element.BirthDate.S})`
-        ) || []
-    )
-    .then(kidsList => simpleHttpResponse({ children: kidsList }))
+  const params = {
+    TableName: "children-api-dev",
+    ConsistentRead: true
+  };
+  const { Items } =  await ddbDocClient.send(new ScanCommand(params));
+  console.info(Items)
+
+  const itemsResult: any[] = []
+  Items?.forEach(element => {
+    itemsResult.push(unmarshall(element))
+  })
+
+  return simpleHttpResponse({ kids : itemsResult })
 }
 
 export const handler = async (): Promise<APIGatewayProxyResult> =>
