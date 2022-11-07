@@ -1,13 +1,13 @@
-import { z } from 'zod';
+import { z } from 'zod'
 export const kidSchema = z.object({
-    KidName: z
-        .string({
-        required_error: 'Name is required',
-        invalid_type_error: 'Name must be a string',
+  KidName: z
+    .string({
+      required_error: 'Name is required',
+      invalid_type_error: 'Name must be a string',
     })
-        .min(3, { message: 'Must be 3 or more characters long' }),
-    KidSurname: z.string(),
-    BirthDate: z.string(),
-    Address: z.string(),
-});
+    .min(3, { message: 'Must be 3 or more characters long' }),
+  KidSurname: z.string(),
+  BirthDate: z.string(),
+  Address: z.string(),
+})
 //# sourceMappingURL=kid.js.map

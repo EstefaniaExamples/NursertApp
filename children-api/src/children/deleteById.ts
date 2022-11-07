@@ -41,8 +41,10 @@ const deleteItem = async (
     })
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
- deleteItem(event).catch((err: any) =>
-  simpleHttpResponse({ message: err.message }, 500)
-)
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deleteItem(event).catch((err: any) =>
+    simpleHttpResponse({ message: err.message }, 500)
+  )
