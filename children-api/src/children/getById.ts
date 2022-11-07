@@ -1,8 +1,8 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 
-import { ddbDocClient } from '../dynamodb.js'
-import { simpleHttpResponse } from '../util.js'
+import { ddbDocClient } from '../dynamodb'
+import { simpleHttpResponse } from '../util'
 
 const get = async (
   event: APIGatewayProxyEvent
@@ -12,9 +12,7 @@ const get = async (
   if (event.pathParameters && event.pathParameters.id) {
     const params = {
       TableName: "children-api-dev",
-      Key: {
-        KidId: event.pathParameters?.['id'] || ''
-      },
+      Key: { KidId: event.pathParameters?.['id'] || ''},
     };
     const { Item } =  await ddbDocClient.send(new GetCommand(params));
     if (Item == undefined) {

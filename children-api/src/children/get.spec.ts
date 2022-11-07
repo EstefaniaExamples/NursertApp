@@ -5,7 +5,6 @@ import { ScanCommand } from "@aws-sdk/client-dynamodb";
 
 import { handler } from './get'
 
-
 describe('Add function Tests', () => {
   const dynamodbMock = mockClient(DynamoDBDocumentClient);
   // const event: APIGatewayProxyEvent = {
@@ -34,10 +33,7 @@ describe('Add function Tests', () => {
       KidName: 'Julia',
       BirthDate: '27/05/2019'
     }
-    const getResponse =[
-      marshall(item1),
-      marshall(item2)
-    ]
+    const getResponse =[ marshall(item1), marshall(item2)]
     dynamodbMock.on(ScanCommand, {
         TableName: "children-api-dev"
     }).resolves({
@@ -48,9 +44,30 @@ describe('Add function Tests', () => {
 
     expect(result.statusCode).toEqual(200);
     expect(result.body).not.toBeNull()
-
-
-    expect(JSON.parse(result.body)).toStrictEqual(JSON.parse(JSON.stringify({ kids: [item1, item2] }) ));
+    expect(JSON.parse(result.body)).toStrictEqual({ kids: [item1, item2] });
   });
 
+  it("should get user names from the DynamoDB", async () => {
+    dynamodbMock.on(ScanCommand, {
+      TableName: "children-api-dev"
+    }).rejects('specific error message');
+
+    const result = await handler();
+
+    expect(result.statusCode).toEqual(500);
+    expect(result.body).not.toBeNull()
+    expect(JSON.parse(result.body).message).toStrictEqual('specific error message');
+  })
+
+  it("should get an empty array when no children in the database", async () => {
+    dynamodbMock.on(ScanCommand, {
+      TableName: "children-api-dev"
+    }).resolves({ Items: []});
+
+    const result = await handler();
+
+    expect(result.statusCode).toEqual(200);
+    expect(result.body).not.toBeNull()
+    expect(JSON.parse(result.body)).toStrictEqual({ kids: [] });
+  })
 });

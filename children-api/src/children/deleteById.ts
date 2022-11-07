@@ -1,9 +1,8 @@
 import { ExecuteStatementCommand, QueryCommand } from '@aws-sdk/client-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
-import middy from '@middy/core'
 
-import { ddbDocClient } from '../dynamodb.js'
-import { simpleHttpResponse } from '../util.js'
+import { ddbDocClient } from '../dynamodb'
+import { simpleHttpResponse } from '../util'
 
 const deleteItem = async (
   event: APIGatewayProxyEvent
@@ -42,14 +41,8 @@ const deleteItem = async (
     })
 }
 
-const wrapper = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deleteItem(event).catch((err: any) =>
-    simpleHttpResponse({ message: err.message }, 500)
-  )
-
-// I'm guessing at some point you'll be registering and using more middleware,
-//  as, at the mo, there's not much need for middy
-export const handler = middy(wrapper)
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ deleteItem(event).catch((err: any) =>
+  simpleHttpResponse({ message: err.message }, 500)
+)

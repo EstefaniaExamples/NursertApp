@@ -38,7 +38,7 @@ describe('Add function Tests', () => {
 
         expect(result.statusCode).toEqual(200);
         expect(result.body).not.toBeNull()
-        expect(JSON.parse(result.body)).toStrictEqual(JSON.parse(JSON.stringify({ kid: getResponse }) ));
+        expect(JSON.parse(result.body)).toStrictEqual({ kid: getResponse });
     });
 
     it("should return an error when DynamoDB query fails", async () => {
