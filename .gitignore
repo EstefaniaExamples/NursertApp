@@ -7,6 +7,7 @@ children-api/.serverless
 children-api/.build
 
 children-api/.DS_Store
+children-api/lib
 
 # Terraform directories
 infrastructure/.terraform

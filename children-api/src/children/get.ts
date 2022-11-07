@@ -7,15 +7,13 @@ import { simpleHttpResponse } from '../util'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const get = async (): Promise<APIGatewayProxyResult> => {
-  console.log('INFO: Starting get all kids handler')
+  console.info('INFO: Starting get all kids handler')
 
   const params = {
     TableName: 'children-api-dev',
     ConsistentRead: true,
   }
   const { Items } = await ddbDocClient.send(new ScanCommand(params))
-  console.info(Items)
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const itemsResult: any[] = []
   Items?.forEach(element => {

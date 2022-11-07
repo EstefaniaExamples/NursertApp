@@ -23,7 +23,7 @@ describe('Add function Tests', () => {
     dynamodbMock.reset()
   })
 
-  it('should get user names from the DynamoDB', async () => {
+  it('should insert the new kid in the database', async () => {
     dynamodbMock
       .on(PutCommand, {
         TableName: 'children-api-dev',

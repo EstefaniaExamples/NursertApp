@@ -7,12 +7,6 @@ import { handler } from './get'
 
 describe('Add function Tests', () => {
   const dynamodbMock = mockClient(DynamoDBDocumentClient)
-  // const event: APIGatewayProxyEvent = {
-  //   body: null,
-  //   pathParameters: null,
-  //   queryStringParameters: null,
-  //   multiValueQueryStringParameters: null,
-  // }  as any
 
   beforeEach(() => {
     dynamodbMock.reset()

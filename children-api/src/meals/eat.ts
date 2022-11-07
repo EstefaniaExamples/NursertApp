@@ -1,5 +1,4 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
-import middy from '@middy/core'
 
 import { simpleHttpResponse } from '../util'
 
@@ -16,7 +15,7 @@ const eat = async (
   )
 }
 
-const wrapper = async (
+export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,5 +28,3 @@ const wrapper = async (
       500
     )
   )
-
-export const handler = middy(wrapper)

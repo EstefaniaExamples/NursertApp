@@ -7,7 +7,7 @@ import { simpleHttpResponse } from '../util'
 const get = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  console.log('Starting get kid by id handler')
+  console.info('Starting get kid by id handler')
 
   if (event.pathParameters && event.pathParameters.id) {
     const params = {
@@ -23,6 +23,7 @@ const get = async (
     }
 
     return simpleHttpResponse({ kid: Item })
+    
   } else {
     return simpleHttpResponse(
       { message: 'Error in the path params, `id` is expected' },
