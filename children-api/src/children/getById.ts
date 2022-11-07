@@ -1,9 +1,8 @@
+import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
-import middy from '@middy/core'
-import { QueryCommand } from '@aws-sdk/client-dynamodb'
 
-import { ddbClient } from '../dynamodb.js'
-import { simpleHttpResponse } from '../util.js'
+import { ddbDocClient } from '../dynamodb'
+import { simpleHttpResponse } from '../util'
 
 const get = async (
   event: APIGatewayProxyEvent
@@ -11,34 +10,30 @@ const get = async (
   console.log('Starting get kid by id handler')
 
   if (event.pathParameters && event.pathParameters.id) {
-    return await ddbClient
-      .send(
-        new QueryCommand({
-          KeyConditionExpression: 'KidId = :id',
-          ExpressionAttributeValues: {
-            ':id': { S: event.pathParameters?.['id'] || '' },
-          },
-          TableName: 'children-api-dev',
-          ConsistentRead: true
-        })
+    const params = {
+      TableName: "children-api-dev",
+      Key: {
+        KidId: event.pathParameters?.['id'] || ''
+      },
+    };
+    const { Item } =  await ddbDocClient.send(new GetCommand(params));
+    if (Item == undefined) {
+      return simpleHttpResponse(
+        { message: `Item with id ${event.pathParameters.id} not found` }, 404
       )
-      .then(data => simpleHttpResponse({ kid: data.Items }))
+    }
+
+    return simpleHttpResponse({ kid : Item })
+
   } else {
     return simpleHttpResponse(
-      { message: 'Error in the path params, `id` is expected' },
-      400
+      { message: 'Error in the path params, `id` is expected' }, 400
     )
   }
 }
 
-const wrapper = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> =>
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get(event).catch((err: any) =>
     simpleHttpResponse({ message: err.message }, 500)
   )
-
-// I'm guessing at some point you'll be registering and using more middleware,
-//  as, at the mo, there's not much need for middy
-export const handler = middy(wrapper)

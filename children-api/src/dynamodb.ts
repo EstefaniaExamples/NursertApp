@@ -1,5 +1,4 @@
 import { DynamoDBDocumentClient, TranslateConfig } from '@aws-sdk/lib-dynamodb'
-
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 const REGION = 'eu-west-2'
@@ -12,7 +11,7 @@ const marshallOptions = {
   // Whether to remove undefined values while marshalling.
   removeUndefinedValues: false,
   // Whether to convert typeof object to map attribute.
-  convertClassInstanceToMap: false,
+  convertClassInstanceToMap: true,
 }
 
 const unmarshallOptions = {

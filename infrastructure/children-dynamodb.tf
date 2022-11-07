@@ -4,7 +4,6 @@ resource "aws_dynamodb_table" "children-dynamodb-table" {
   read_capacity  = 5
   write_capacity = 5
   hash_key       = "KidId"
-  range_key      = "KidName"
 
   attribute {
     name = "KidId"
@@ -26,10 +25,18 @@ resource "aws_dynamodb_table" "children-dynamodb-table" {
     enabled        = false
   }
 
+    global_secondary_index {
+    name               = "KidNameIndex"
+    hash_key           = "KidName"
+    write_capacity     = 5
+    read_capacity      = 5
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["KidId"]
+  }
+
   global_secondary_index {
     name               = "BirthDateIndex"
     hash_key           = "BirthDate"
-    range_key          = "KidName"
     write_capacity     = 5
     read_capacity      = 5
     projection_type    = "INCLUDE"
