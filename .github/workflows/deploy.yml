@@ -47,15 +47,15 @@ jobs:
       - name: Build
         run: npm run build
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-        audience: 'sts.amazonaws.com'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          audience: 'sts.amazonaws.com'
 
-    - name: Serverless Deploy       
-      uses: serverless/github-action@v2
-      with:
-        args: deploy --stage dev 
+      - name: Serverless Deploy       
+        uses: serverless/github-action@v2
+        with:
+          args: deploy --stage dev 
