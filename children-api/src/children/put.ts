@@ -3,9 +3,9 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { ZodError } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 
-import { simpleHttpResponse } from '../util'
-import { ddbDocClient } from '../dynamodb'
-import { kidSchema } from './kid'
+import { simpleHttpResponse } from '../util.js'
+import { ddbDocClient } from '../dynamodb.js'
+import { kidSchema } from './kid.js'
 
 const put = async (
   event: APIGatewayProxyEvent
