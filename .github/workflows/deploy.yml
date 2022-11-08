@@ -60,3 +60,4 @@ jobs:
         with:
           # args: deploy --stage dev -c children-api/serverless.yml
           args: -c "cd ./children-api && serverless deploy --stage dev"
+          entrypoint: /bin/sh
