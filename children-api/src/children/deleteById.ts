@@ -1,4 +1,4 @@
-import { ExecuteStatementCommand, QueryCommand } from '@aws-sdk/client-dynamodb'
+import { ExecuteStatementCommand } from '@aws-sdk/client-dynamodb'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 

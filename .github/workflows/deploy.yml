@@ -56,6 +56,7 @@ jobs:
           audience: 'sts.amazonaws.com'
 
       - name: Serverless Deploy       
-        uses: serverless/github-action@v2
+        uses: serverless/github-action@v3
         with:
-          args: deploy --stage dev -c children-api/serverless.yml
+          # args: deploy --stage dev -c children-api/serverless.yml
+          args: -c "cd ./children-api && serverless deploy --stage dev"
