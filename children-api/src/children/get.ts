@@ -9,11 +9,10 @@ import { simpleHttpResponse } from '../util.js'
 const get = async (): Promise<APIGatewayProxyResult> => {
   console.info('INFO: Starting get all kids handler')
 
-  const params = {
+  const { Items } = await ddbDocClient.send(new ScanCommand({
     TableName: 'children-api-dev',
     ConsistentRead: true,
-  }
-  const { Items } = await ddbDocClient.send(new ScanCommand(params))
+  }))
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const itemsResult: any[] = []
   Items?.forEach(element => {

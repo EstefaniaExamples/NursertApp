@@ -58,4 +58,4 @@ jobs:
       - name: Serverless Deploy       
         uses: serverless/github-action@v2
         with:
-          args: deploy --stage dev 
+          args: deploy --stage dev -c children-api/serverless.yml
