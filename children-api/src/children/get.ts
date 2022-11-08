@@ -2,8 +2,8 @@ import { APIGatewayProxyResult } from 'aws-lambda'
 import { ScanCommand } from '@aws-sdk/client-dynamodb'
 import { unmarshall } from '@aws-sdk/util-dynamodb'
 
-import { ddbDocClient } from '../dynamodb'
-import { simpleHttpResponse } from '../util'
+import { ddbDocClient } from '../dynamodb.js'
+import { simpleHttpResponse } from '../util.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const get = async (): Promise<APIGatewayProxyResult> => {

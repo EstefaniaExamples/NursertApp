@@ -13,7 +13,6 @@ const put = async (
   if (event.body) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const item = kidSchema.parse(JSON.parse(event.body!))
-    console.log(item)
     const params = {
       TableName: 'children-api-dev',
       Item: {
