@@ -37,6 +37,8 @@ This template contains a single lambda function triggered by an HTTP request mad
 - Install DynamoDB Local (unless using docker setup, see below) `sls dynamodb install`
 - Add DynamoDB Resource definitions to your Serverless configuration,
 - Start DynamoDB Local and migrate (DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window). Make sure above command is executed before this. `sls dynamodb start --migrate`
+- `aws dynamodb list-tables --endpoint-url http://localhost:5001` to check that the table we need for our service is succesfully created. 
+- Note: DynamoDB Local Web Shell was deprecated with version 1.16.X and is not available any longer from 1.17.X to latest.
 
 
 Check the [sls invoke local command documentation](https://www.serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) for more information.

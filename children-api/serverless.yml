@@ -94,10 +94,10 @@ custom:
 # Resources your functions use
 resources: # CloudFormation template syntax from here on.
       Resources:
-        children-api-dev:
+        childrenTable:
           Type: AWS::DynamoDB::Table
           Properties:
-            TableName: children-api-dev
+            TableName: "${self:provider.environment.DYNAMODB_TABLE}"
             AttributeDefinitions:
               - AttributeName: KidId
                 AttributeType: S
