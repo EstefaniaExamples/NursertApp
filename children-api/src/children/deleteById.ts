@@ -2,8 +2,8 @@ import { ExecuteStatementCommand } from '@aws-sdk/client-dynamodb'
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 
-import { ddbDocClient } from '../dynamodb.js'
-import { simpleHttpResponse } from '../util.js'
+import { ddbDocClient } from '../dynamodb'
+import { simpleHttpResponse } from '../util'
 
 const deleteItem = async (
   event: APIGatewayProxyEvent

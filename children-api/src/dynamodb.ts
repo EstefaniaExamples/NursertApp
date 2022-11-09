@@ -3,7 +3,20 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 const REGION = 'eu-west-2'
 
-export const ddbClient: DynamoDBClient = new DynamoDBClient({ region: REGION })
+function getDynamoDBClient(): DynamoDBClient {
+  if (process.env.IS_OFFLINE) {
+    console.info ('Setting the configuration to use the localhost database')
+    return new DynamoDBClient({
+      region: "localhost",
+      endpoint: "http://localhost:5000", 
+    });
+  }
+  console.info ('Setting the configuration to use the AWS database')
+  return new DynamoDBClient({ region: REGION });
+}
+
+export const ddbClient: DynamoDBClient = getDynamoDBClient()
+// export const ddbClient: DynamoDBClient = new DynamoDBClient({ region: REGION })
 
 const marshallOptions = {
   // Whether to automatically convert empty strings, blobs, and sets to `null`.

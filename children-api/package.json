@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Serverless aws-nodejs-typescript template",
   "main": "serverless.yml",
-  "type": "module",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
@@ -22,6 +21,7 @@
     "@aws-sdk/types": "^3.201.0",
     "aws-lambda": "^1.0.7",
     "aws-sdk-mock": "^5.8.0",
+    "serverless-bundle": "^5.5.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {
@@ -42,7 +42,8 @@
     "jest-when": "^3.5.2",
     "prettier": "^2.7.1",
     "serverless": "^3.24.1",
-    "serverless-dynamodb-local": "^1.0.2",
+    "serverless-dotenv-plugin": "^4.0.2",
+    "serverless-dynamodb-local": "^0.2.24",
     "serverless-esbuild": "^1.33.1",
     "serverless-offline": "^11.2.3 ",
     "serverless-plugin-optimize": "^4.2.1-rc.1",

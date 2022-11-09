@@ -12,7 +12,7 @@ describe('Add function Tests', () => {
     dynamodbMock.reset()
   })
 
-  it('should get user names from the DynamoDB', async () => {
+  it('should get user details from the DynamoDB', async () => {
     const item1 = {
       KidSurname: 'Ameneiros Castro',
       Address: 'Comunidad de Cantabria, 121, Laguna de Duero',
@@ -43,7 +43,7 @@ describe('Add function Tests', () => {
     expect(JSON.parse(result.body)).toStrictEqual({ kids: [item1, item2] })
   })
 
-  it('should get user names from the DynamoDB', async () => {
+  it('should return a specific error when query to database fails', async () => {
     dynamodbMock
       .on(ScanCommand, {
         TableName: 'children-api-dev',
