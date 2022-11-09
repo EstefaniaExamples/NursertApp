@@ -64,12 +64,12 @@ functions:
 
 # Serverless plugins
 plugins:
-  # - serverless-esbuild
   - serverless-offline     # this plugin enables us to run our application and Lambda functions locally
   - serverless-plugin-typescript
-  # - serverless-bundle
   - serverless-dynamodb-local
-  - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
+  # - serverless-bundle
+  # - serverless-esbuild
+  # - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
 
 custom:
   # esbuild: 

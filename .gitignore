@@ -9,7 +9,7 @@ children/.esbuild
 
 children-api/.DS_Store
 children-api/lib
-children/.serverless
+children/.dynamodb
 
 # Terraform directories
 infrastructure/.terraform
