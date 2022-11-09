@@ -5,7 +5,7 @@ children-api/jspm_packages
 # Serverless directories
 children-api/.serverless
 children-api/.build
-children/.esbuild
+children-api/.esbuild
 
 children-api/.DS_Store
 children-api/lib

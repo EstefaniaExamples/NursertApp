@@ -13,13 +13,18 @@ const put = async (
   if (event.body) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const item = kidSchema.parse(JSON.parse(event.body!))
-    await ddbDocClient.send(new PutCommand({
-      TableName: 'children-api-dev',
-      Item: {
-        ...item, KidId: uuidv4()
-      },
-    }))
-
+    try {
+      await ddbDocClient.send(new PutCommand({
+        TableName: 'children-api-dev',
+        Item: {
+          ...item, KidId: uuidv4()
+        },
+      }))
+    } catch (err: any) {
+      console.error(err)
+      return simpleHttpResponse({ message: err.message }, 500)
+    }
+    
     console.info('Success - item added or updated')
     return simpleHttpResponse({ item }, 201)
       

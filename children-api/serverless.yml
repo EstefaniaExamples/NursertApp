@@ -66,10 +66,10 @@ functions:
 plugins:
   - serverless-esbuild
   - serverless-offline     # this plugin enables us to run our application and Lambda functions locally
-  # - serverless-plugin-typescript
-  # - serverless-bundle
   - serverless-dynamodb-local
   - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
+  # - serverless-plugin-typescript
+  # - serverless-bundle
 
 custom:
   esbuild: 
@@ -85,12 +85,27 @@ custom:
     httpPort: 3003
   dynamodb:
     start:
-      port: 5000
+      port: 5001
       inMemory: true
       migrate: true
     stages:
       - dev
 
 # Resources your functions use
-resources: 
+resources: # CloudFormation template syntax from here on.
+  # Resources:
+  #   childrenTable:
+  #     Type: AWS::DynamoDB::Table
+  #     DeletionPolicy: Retain
+  #     Properties:
+  #       TableName: "${self:provider.environment.DYNAMODB_TABLE}"
+  #       AttributeDefinitions:
+  #         - AttributeName: KidId
+  #           AttributeType: S
+  #       KeySchema:
+  #         - AttributeName: KidId
+  #           KeyType: HASH
+  #       ProvisionedThroughput:
+  #         ReadCapacityUnits: 1
+  #         WriteCapacityUnits: 1
 
