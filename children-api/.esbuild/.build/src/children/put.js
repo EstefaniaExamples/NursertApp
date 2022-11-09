@@ -32849,15 +32849,21 @@ var kidSchema = mod.object({
 
 // src/children/put.ts
 var put = async (event) => {
+  console.info("Add a new kid to the nursery database");
   if (event.body) {
     const item = kidSchema.parse(JSON.parse(event.body));
-    await ddbDocClient.send(new import_lib_dynamodb2.PutCommand({
-      TableName: "children-api-dev",
-      Item: {
-        ...item,
-        KidId: v4()
-      }
-    }));
+    try {
+      await ddbDocClient.send(new import_lib_dynamodb2.PutCommand({
+        TableName: "children-api-dev",
+        Item: {
+          ...item,
+          KidId: v4()
+        }
+      }));
+    } catch (err) {
+      console.error(err);
+      return simpleHttpResponse({ message: "Internal error in the put command" }, 500);
+    }
     console.info("Success - item added or updated");
     return simpleHttpResponse({ item }, 201);
   } else {

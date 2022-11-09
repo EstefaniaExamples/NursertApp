@@ -85,12 +85,26 @@ custom:
     httpPort: 3003
   dynamodb:
     start:
-      port: 5000
+      port: 5001
       inMemory: true
       migrate: true
     stages:
       - dev
 
 # Resources your functions use
-resources: 
+resources: # CloudFormation template syntax from here on.
+      Resources:
+        children-api-dev:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: children-api-dev
+            AttributeDefinitions:
+              - AttributeName: KidId
+                AttributeType: S
+            KeySchema:
+              - AttributeName: KidId
+                KeyType: HASH
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
 
