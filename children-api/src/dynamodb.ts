@@ -8,7 +8,7 @@ function getDynamoDBClient(): DynamoDBClient {
     console.info ('Setting the configuration to use the localhost database')
     return new DynamoDBClient({
       region: "localhost",
-      endpoint: "http://localhost:5000", 
+      endpoint: "http://localhost:5001", 
     });
   }
   console.info ('Setting the configuration to use the AWS database')

@@ -10,18 +10,23 @@ const get = async (
   console.info('Starting get kid by id handler')
 
   if (event.pathParameters && event.pathParameters.id) {
-    const { Item } = await ddbDocClient.send(new GetCommand({
-      TableName: 'children-api-dev',
-      Key: { KidId: event.pathParameters?.['id'] || '' },
-    }))
-    if (Item == undefined) {
-      return simpleHttpResponse(
-        { message: `Item with id ${event.pathParameters.id} not found` },
-        404
-      )
+    try {
+      const { Item } = await ddbDocClient.send(new GetCommand({
+        TableName: 'children-api-dev',
+        Key: { KidId: event.pathParameters?.['id'] || '' },
+      }))
+      if (Item == undefined) {
+        return simpleHttpResponse(
+          { message: `Item with id ${event.pathParameters.id} not found` },
+          404
+        )
+      }
+      return simpleHttpResponse({ kid: Item })
+      
+    } catch (err: any) {
+      console.error(err)
+      return simpleHttpResponse({ message: err.message }, 500)
     }
-
-    return simpleHttpResponse({ kid: Item })
     
   } else {
     return simpleHttpResponse(

@@ -109,3 +109,12 @@ resources: # CloudFormation template syntax from here on.
   #         ReadCapacityUnits: 1
   #         WriteCapacityUnits: 1
 
+package: 
+  exclude: 
+    - node_modules/dynamodb-localhost/**
+    - node_modules/serverless-dynamo-local/**
+    - node_modules/serverless-offline
+
+    
+
+

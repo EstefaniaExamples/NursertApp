@@ -9,17 +9,23 @@ import { simpleHttpResponse } from '../util'
 const get = async (): Promise<APIGatewayProxyResult> => {
   console.info('INFO: Starting get all kids handler')
 
-  const { Items } = await ddbDocClient.send(new ScanCommand({
-    TableName: 'children-api-dev',
-    ConsistentRead: true,
-  }))
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const itemsResult: any[] = []
-  Items?.forEach(element => {
-    itemsResult.push(unmarshall(element))
-  })
+  try {
+    const { Items } = await ddbDocClient.send(new ScanCommand({
+      TableName: 'children-api-dev',
+      ConsistentRead: true,
+    }))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const itemsResult: any[] = []
+    Items?.forEach(element => {
+      itemsResult.push(unmarshall(element))
+    })
+    return simpleHttpResponse({ kids: itemsResult })
 
-  return simpleHttpResponse({ kids: itemsResult })
+  } catch (err: any) {
+    console.error(err)
+    return simpleHttpResponse({ message: err.message }, 500)
+  }
+
 }
 
 export const handler = async (): Promise<APIGatewayProxyResult> =>
