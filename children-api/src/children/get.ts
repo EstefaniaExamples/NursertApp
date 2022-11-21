@@ -1,6 +1,5 @@
 import { APIGatewayProxyResult } from 'aws-lambda'
-import { ScanCommand } from '@aws-sdk/client-dynamodb'
-import { unmarshall } from '@aws-sdk/util-dynamodb'
+import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 import { ddbDocClient } from '../dynamodb'
 import { simpleHttpResponse } from '../util'
@@ -14,12 +13,8 @@ const get = async (): Promise<APIGatewayProxyResult> => {
       TableName: 'children-api-dev',
       ConsistentRead: true,
     }))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const itemsResult: any[] = []
-    Items?.forEach(element => {
-      itemsResult.push(unmarshall(element))
-    })
-    return simpleHttpResponse({ kids: itemsResult })
+    console.info(Items)
+    return simpleHttpResponse({ kids: Items })
 
   } catch (err: any) {
     console.error(err)

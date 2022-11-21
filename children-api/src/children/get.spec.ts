@@ -1,7 +1,5 @@
 import { mockClient } from 'aws-sdk-client-mock'
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
-import { marshall } from '@aws-sdk/util-dynamodb'
-import { ScanCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 import { handler } from './get'
 
@@ -27,13 +25,13 @@ describe('Add function Tests', () => {
       KidName: 'Julia',
       BirthDate: '27/05/2019',
     }
-    const getResponse = [marshall(item1), marshall(item2)]
+    
     dynamodbMock
       .on(ScanCommand, {
         TableName: 'children-api-dev',
       })
       .resolves({
-        Items: getResponse,
+        Items: [item1, item2],
       })
 
     const result = await handler()
