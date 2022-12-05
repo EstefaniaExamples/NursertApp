@@ -4,7 +4,7 @@ async (infile) =>
     esbuild
         .build({
             entryPoints: [infile],
-            outdir: 'build',
+            outdir: '.esbuild',
             bundle: true,
             sourcemap: true,
             minify: true,
