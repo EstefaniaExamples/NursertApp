@@ -14,21 +14,23 @@ const put = async (
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const item = kidSchema.parse(JSON.parse(event.body!))
     try {
-      await ddbDocClient.send(new PutCommand({
-        TableName: 'children-api-dev',
-        Item: {
-          ...item, KidId: uuidv4()
-        },
-      }))
-      
+      await ddbDocClient.send(
+        new PutCommand({
+          TableName: 'children-api-dev',
+          Item: {
+            ...item,
+            KidId: uuidv4(),
+          },
+        })
+      )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err)
       return simpleHttpResponse({ message: err.message }, 500)
     }
-    
+
     console.info('Success - item added or updated')
     return simpleHttpResponse({ item }, 201)
-      
   } else {
     return simpleHttpResponse({ message: 'The body cannot be empty' }, 400)
   }

@@ -5,14 +5,14 @@ const REGION = 'eu-west-2'
 
 function getDynamoDBClient(): DynamoDBClient {
   if (process.env.IS_OFFLINE) {
-    console.info ('Setting the configuration to use the localhost database')
+    console.info('Setting the configuration to use the localhost database')
     return new DynamoDBClient({
-      region: "localhost",
-      endpoint: "http://localhost:5001", 
-    });
+      region: 'localhost',
+      endpoint: 'http://localhost:5001',
+    })
   }
-  console.info ('Setting the configuration to use the AWS database')
-  return new DynamoDBClient({ region: REGION });
+  console.info('Setting the configuration to use the AWS database')
+  return new DynamoDBClient({ region: REGION })
 }
 
 export const ddbClient: DynamoDBClient = getDynamoDBClient()

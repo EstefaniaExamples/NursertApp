@@ -25,7 +25,7 @@ describe('Add function Tests', () => {
       KidName: 'Julia',
       BirthDate: '27/05/2019',
     }
-    
+
     dynamodbMock
       .on(ScanCommand, {
         TableName: 'children-api-dev',

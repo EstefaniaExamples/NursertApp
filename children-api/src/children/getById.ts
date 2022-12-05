@@ -11,10 +11,12 @@ const get = async (
 
   if (event.pathParameters && event.pathParameters.id) {
     try {
-      const { Item } = await ddbDocClient.send(new GetCommand({
-        TableName: 'children-api-dev',
-        Key: { KidId: event.pathParameters?.['id'] || '' },
-      }))
+      const { Item } = await ddbDocClient.send(
+        new GetCommand({
+          TableName: 'children-api-dev',
+          Key: { KidId: event.pathParameters?.['id'] || '' },
+        })
+      )
       if (Item == undefined) {
         return simpleHttpResponse(
           { message: `Item with id ${event.pathParameters.id} not found` },
@@ -22,12 +24,11 @@ const get = async (
         )
       }
       return simpleHttpResponse({ kid: Item })
-      
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err)
       return simpleHttpResponse({ message: err.message }, 500)
     }
-    
   } else {
     return simpleHttpResponse(
       { message: 'Error in the path params, `id` is expected' },

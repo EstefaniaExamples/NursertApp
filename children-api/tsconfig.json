@@ -13,6 +13,7 @@
     "outDir": "lib",
     "allowJs": true,
     "strict": true,
+    "esModuleInterop": true,
     "strictNullChecks": true
   },
   "include": ["src/**/*.ts", "serverless.yml"],

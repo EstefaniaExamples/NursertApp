@@ -8,33 +8,37 @@ const deleteItem = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   console.info('Starting delete children handler')
- 
+
   if (event.pathParameters && event.pathParameters.id) {
     try {
-      const { Item } = await ddbDocClient.send(new GetCommand({
-        TableName: 'children-api-dev',
-        Key: { KidId: event.pathParameters?.['id'] || '' },
-      }))
+      const { Item } = await ddbDocClient.send(
+        new GetCommand({
+          TableName: 'children-api-dev',
+          Key: { KidId: event.pathParameters?.['id'] || '' },
+        })
+      )
       if (Item == undefined) {
         return simpleHttpResponse(
           { message: `Item with id ${event.pathParameters.id} not found` },
           404
         )
       } else {
-        const result = await ddbDocClient.send(new DeleteCommand({
-          TableName: "children-api-dev",
-          Key: {
-            KidId: event.pathParameters?.['id'],
-          },
-        }));
+        const result = await ddbDocClient.send(
+          new DeleteCommand({
+            TableName: 'children-api-dev',
+            Key: {
+              KidId: event.pathParameters?.['id'],
+            },
+          })
+        )
         console.info(result)
         return simpleHttpResponse({ message: 'Item successfuly deleted' })
       }
-    } catch(err: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error(err)
       return simpleHttpResponse({ message: err.message }, 500)
     }
-    
   } else {
     return simpleHttpResponse(
       { message: 'Error in the path params, `id` is expected' },

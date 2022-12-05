@@ -7,17 +7,17 @@ import { handler } from './put'
 describe('Add function Tests', () => {
   const dynamodbMock = mockClient(DynamoDBDocumentClient)
   const inputItem = {
-      KidSurname: 'Ameneiros Castro',
-      Address: 'Comunidad de Cantabria, 121, Laguna de Duero',
-      KidName: 'Andreia',
-      BirthDate: '16/07/2019',
+    KidSurname: 'Ameneiros Castro',
+    Address: 'Comunidad de Cantabria, 121, Laguna de Duero',
+    KidName: 'Andreia',
+    BirthDate: '16/07/2019',
   }
   const event: APIGatewayProxyEvent = {
     body: JSON.stringify(inputItem),
     pathParameters: null,
     queryStringParameters: null,
     multiValueQueryStringParameters: null,
-  }  as any
+  } as any
 
   beforeEach(() => {
     dynamodbMock.reset()
@@ -26,7 +26,7 @@ describe('Add function Tests', () => {
   it('should insert the new kid in the database', async () => {
     dynamodbMock
       .on(PutCommand, {
-        TableName: 'children-api-dev'
+        TableName: 'children-api-dev',
       })
       .resolves({
         $metadata: {
@@ -35,11 +35,11 @@ describe('Add function Tests', () => {
           extendedRequestId: undefined,
           cfId: undefined,
           attempts: 1,
-          totalRetryDelay: 0
+          totalRetryDelay: 0,
         },
         Attributes: undefined,
         ConsumedCapacity: undefined,
-        ItemCollectionMetrics: undefined
+        ItemCollectionMetrics: undefined,
       })
 
     const result = await handler(event)
@@ -55,7 +55,7 @@ describe('Add function Tests', () => {
     }
     const eventWithoutBodyName: APIGatewayProxyEvent = {
       body: JSON.stringify(wrongInputItem),
-    }  as any
+    } as any
 
     const result = await handler(eventWithoutBodyName)
 
@@ -63,17 +63,17 @@ describe('Add function Tests', () => {
     expect(JSON.parse(result.body).message).toEqual('Error in the request body')
   })
 
-
   it('should fail if request body is ian invalid JSON', async () => {
     const wrongInputItem = 'any string, not json format'
     const eventWithWrongBody: APIGatewayProxyEvent = {
       body: wrongInputItem,
-    }  as any
+    } as any
 
     const result = await handler(eventWithWrongBody)
 
     expect(result.statusCode).toEqual(500)
-    expect(JSON.parse(result.body).message).toEqual('Unexpected token a in JSON at position 0')
+    expect(JSON.parse(result.body).message).toEqual(
+      'Unexpected token a in JSON at position 0'
+    )
   })
-
 })
