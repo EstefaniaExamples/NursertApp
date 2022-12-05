@@ -117,7 +117,3 @@ package:
     - node_modules/serverless-dynamo-local/**
     - node_modules/serverless-offline/**
     - node_modules/serverless-plugin-typescript/**
-
-    
-
-
