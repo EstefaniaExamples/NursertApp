@@ -11,7 +11,7 @@ async (infile) =>
             splitting: true,
             format: 'esm',
             platform: 'node',
-            target: ['esnext'],
+            target: ['es2022'],
             outExtension: {'.js': '.mjs'}, 
-            // define: { 'require.resolve': undefined}
+            define: { 'require.resolve': undefined }
         });

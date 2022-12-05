@@ -74,12 +74,14 @@ plugins:
 custom:
   esbuild: 
     bundle: true
-    minify: false
+    minify: true
     sourcemap: true
     exclude: ['aws-sdk']
-    target: 'node16'
+    target: 'es2022'
     define: { 'require.resolve': undefined }
     platform: 'node'
+    format: 'esm'
+    outExtension: {'.js': '.mjs'}
     concurrency: 10
   serverless-offline:
     httpPort: 3003
