@@ -10,14 +10,13 @@
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "shx rm -rf dist/*",
-    "build": "npm run clean && tsc --project tsconfig.json"
+    "build": "npm run clean && node ./esbuild.mjs"
   },
   "engines": {
-    "node": ">=16.16.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "aws-lambda": "^1.0.7",
-    "aws-sdk-mock": "^5.8.0",
     "serverless-bundle": "^5.5.0",
     "zod": "^3.19.1"
   },
