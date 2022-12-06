@@ -3,10 +3,6 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 import { ddbDocClient } from '../dynamodb'
 import { simpleHttpResponse } from '../util'
-import { main } from './top-level-await'
-
-const text = await main();
-console.log(text);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const get = async (): Promise<APIGatewayProxyResult> => {

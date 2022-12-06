@@ -3,14 +3,13 @@
   "compilerOptions": {
     // AWS Javascript SDK v3 - Typescript doesnt compile due to error TS2304: Cannot find name ReadableStream
     // Turned out that in order for typescript to find the Blob, File etc. names I had to add the dom entry to the lib in my tsconfig.json.
-    "module": "es2022",
     "lib": ["ESNext", "dom"],
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "removeComments": true,
     "sourceMap": true,
-    "target": "ES2022",
+    "target": "ES2020",
     "outDir": "lib",
     "allowJs": true,
     "strict": true,

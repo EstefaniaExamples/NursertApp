@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.ts",
+    "test": "jest --config ./jest.config.ts",
     "start": "./node_modules/.bin/serverless offline -s dev",
     "debug": "export SLS_DEBUG=* && node --inspect ./node_modules/.bin/serverless offline -s dev",
     "clean": "shx rm -rf dist/*",
@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "aws-lambda": "^1.0.7",
-    "serverless-bundle": "^5.5.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {
@@ -42,7 +41,7 @@
     "prettier": "^2.8.0",
     "serverless": "^3.25.1",
     "serverless-dotenv-plugin": "^4.0.2",
-    "serverless-dynamodb-local": "^1.0.2",
+    "serverless-dynamodb-local": "^0.2.40",
     "serverless-esbuild": "^1.33.2",
     "serverless-offline": "^12.0.0",
     "serverless-plugin-optimize": "^4.2.1-rc.1",

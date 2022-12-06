@@ -74,14 +74,12 @@ plugins:
 custom:
   esbuild: 
     bundle: true
-    minify: true
+    minify: false
     sourcemap: true
     exclude: ['aws-sdk']
-    target: 'es2022'
+    target: 'node16'
     define: { 'require.resolve': undefined }
     platform: 'node'
-    format: 'esm'
-    outExtension: {'.js': '.mjs'}
     concurrency: 10
   serverless-offline:
     httpPort: 3003
@@ -115,5 +113,8 @@ package:
   exclude: 
     - node_modules/dynamodb-localhost/**
     - node_modules/serverless-dynamo-local/**
-    - node_modules/serverless-offline/**
-    - node_modules/serverless-plugin-typescript/**
+    - node_modules/serverless-offline
+
+    
+
+
