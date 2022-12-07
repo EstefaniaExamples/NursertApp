@@ -3,8 +3,8 @@ import { PutCommand } from '@aws-sdk/lib-dynamodb'
 import { ZodError } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 
-import { simpleHttpResponse } from '../util'
-import { ddbDocClient } from '../dynamodb'
+import { formatJSONResponse } from '@libs/util'
+import { ddbDocClient } from '@libs/dynamodb'
 import { kidSchema } from './kid'
 
 const put = async (
@@ -26,13 +26,13 @@ const put = async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err)
-      return simpleHttpResponse({ message: err.message }, 500)
+      return formatJSONResponse({ message: err.message }, 500)
     }
 
     console.info('Success - item added or updated')
-    return simpleHttpResponse({ item }, 201)
+    return formatJSONResponse({ item }, 201)
   } else {
-    return simpleHttpResponse({ message: 'The body cannot be empty' }, 400)
+    return formatJSONResponse({ message: 'The body cannot be empty' }, 400)
   }
 }
 
@@ -42,7 +42,7 @@ export const handler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   put(event).catch((err: any) => {
     if (err instanceof ZodError) {
-      return simpleHttpResponse({ message: 'Error in the request body' }, 400)
+      return formatJSONResponse({ message: 'Error in the request body' }, 400)
     }
-    return simpleHttpResponse({ message: err.message }, 500)
+    return formatJSONResponse({ message: err.message }, 500)
   })

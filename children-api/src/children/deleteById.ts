@@ -1,8 +1,8 @@
-import { DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
+import { DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 
-import { ddbDocClient } from '../dynamodb'
-import { simpleHttpResponse } from '../util'
+import { ddbDocClient, getChildrenById } from '@libs/dynamodb'
+import { formatJSONResponse } from '@libs/util'
 
 const deleteItem = async (
   event: APIGatewayProxyEvent
@@ -11,36 +11,31 @@ const deleteItem = async (
 
   if (event.pathParameters && event.pathParameters.id) {
     try {
-      const { Item } = await ddbDocClient.send(
-        new GetCommand({
+      await getChildrenById(event.pathParameters?.['id'] || '')
+
+      const result = await ddbDocClient.send(
+        new DeleteCommand({
           TableName: 'children-api-dev',
-          Key: { KidId: event.pathParameters?.['id'] || '' },
+          Key: {
+            KidId: event.pathParameters?.['id'],
+          },
         })
       )
-      if (Item == undefined) {
-        return simpleHttpResponse(
-          { message: `Item with id ${event.pathParameters.id} not found` },
-          404
-        )
-      } else {
-        const result = await ddbDocClient.send(
-          new DeleteCommand({
-            TableName: 'children-api-dev',
-            Key: {
-              KidId: event.pathParameters?.['id'],
-            },
-          })
-        )
-        console.info(result)
-        return simpleHttpResponse({ message: 'Item successfuly deleted' })
-      }
+      console.info(result)
+      return formatJSONResponse({ message: 'Item successfuly deleted' })
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err)
-      return simpleHttpResponse({ message: err.message }, 500)
+      if ((err.message as string).includes('not found')) {
+        return formatJSONResponse({ message: err.message }, 404)
+      } else {
+        return formatJSONResponse({ message: err.message }, 500)
+      }
     }
+    
   } else {
-    return simpleHttpResponse(
+    return formatJSONResponse(
       { message: 'Error in the path params, `id` is expected' },
       400
     )
@@ -52,5 +47,5 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteItem(event).catch((err: any) =>
-    simpleHttpResponse({ message: err.message }, 500)
+  formatJSONResponse({ message: err.message }, 500)
   )

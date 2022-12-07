@@ -1,4 +1,4 @@
-import { DynamoDBDocumentClient, TranslateConfig } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, GetCommand, TranslateConfig } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 const REGION = 'eu-west-2'
@@ -38,3 +38,20 @@ export const ddbDocClient = DynamoDBDocumentClient.from(
   ddbClient,
   translateConfig
 )
+
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getChildrenById(id: string): Promise<any> {
+    const { Item } = await ddbDocClient.send(
+      new GetCommand({
+        TableName: 'children-api-dev',
+        Key: { KidId: id },
+      })
+    )
+    
+    if (Item == undefined) {
+      throw new TypeError(`Item with id ${id} not found`);
+    }
+
+    return Item;
+}
+

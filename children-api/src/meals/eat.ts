@@ -1,12 +1,12 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 
-import { simpleHttpResponse } from '../util'
+import { formatJSONResponse } from '@libs/util'
 
 const eat = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   console.log('INFO: Starting meals handler')
-  return simpleHttpResponse(
+  return formatJSONResponse(
     {
       message: 'Welcome to the meals function',
       input: event,
@@ -20,7 +20,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   eat(event).catch((err: any) =>
-    simpleHttpResponse(
+  formatJSONResponse(
       {
         error: 'An error has occurred',
         message: err.message,
