@@ -1,7 +1,6 @@
-import { DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 
-import { ddbDocClient, getChildrenById } from '@libs/dynamodb'
+import { deleteChildrenById } from '@libs/repository'
 import { formatJSONResponse } from '@libs/util'
 
 const deleteItem = async (
@@ -11,17 +10,7 @@ const deleteItem = async (
 
   if (event.pathParameters && event.pathParameters.id) {
     try {
-      await getChildrenById(event.pathParameters?.['id'] || '')
-
-      const result = await ddbDocClient.send(
-        new DeleteCommand({
-          TableName: 'children-api-dev',
-          Key: {
-            KidId: event.pathParameters?.['id'],
-          },
-        })
-      )
-      console.info(result)
+      await deleteChildrenById(event.pathParameters?.['id'] || '')
       return formatJSONResponse({ message: 'Item successfuly deleted' })
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,8 +33,4 @@ const deleteItem = async (
 
 export const handler = async (
   event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deleteItem(event).catch((err: any) =>
-  formatJSONResponse({ message: err.message }, 500)
-  )
+): Promise<APIGatewayProxyResult> => deleteItem(event)

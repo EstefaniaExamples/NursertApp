@@ -1,9 +1,9 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda'
 
-import { getChildrenById } from '@libs/dynamodb'
+import { getChildrenById } from '@libs/repository'
 import { formatJSONResponse } from '@libs/util'
 
-const get = async (
+const getItemById = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   console.info('Starting get kid by id handler')
@@ -34,8 +34,4 @@ const get = async (
 
 export const handler = async (
   event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get(event).catch((err: any) =>
-    formatJSONResponse({ message: err.message }, 500)
-  )
+): Promise<APIGatewayProxyResult> => getItemById(event)
