@@ -24,6 +24,16 @@ provider:
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
           # arn:aws:dynamodb:eu-west-2:634692860368:table/NurseryChildren
 
+
+package: 
+  individually: true
+  patterns: 
+    - '!**/*'
+    - package.json
+    - config/**/*
+    - dist/**/*
+    - node_modules/**/*
+
 # Serverless functions
 functions: 
   getChildren: 
@@ -64,22 +74,17 @@ functions:
 
 # Serverless plugins
 plugins:
-  - serverless-esbuild
+  - serverless-webpack
   - serverless-offline     # this plugin enables us to run our application and Lambda functions locally
   - serverless-dynamodb-local
   - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
   # - serverless-plugin-typescript
 
 custom:
-  esbuild: 
-    bundle: true
-    minify: false
-    sourcemap: true
-    exclude: ['aws-sdk']
-    target: 'node16'
-    define: { 'require.resolve': undefined }
-    platform: 'node'
-    concurrency: 10
+  webpack:
+    webpackConfig: 'webpack.config.js' # Name of webpack configuration file
+    includeModules: true # Node modules configuration for packaging
+    packager: 'npm' # Packager that will be used to package your external 
   serverless-offline:
     httpPort: 3003
   dynamodb:
@@ -92,29 +97,19 @@ custom:
 
 # Resources your functions use
 resources: # CloudFormation template syntax from here on.
-  # Resources:
-  #   childrenTable:
-  #     Type: AWS::DynamoDB::Table
-  #     DeletionPolicy: Retain
-  #     Properties:
-  #       TableName: "${self:provider.environment.DYNAMODB_TABLE}"
-  #       AttributeDefinitions:
-  #         - AttributeName: KidId
-  #           AttributeType: S
-  #       KeySchema:
-  #         - AttributeName: KidId
-  #           KeyType: HASH
-  #       ProvisionedThroughput:
-  #         ReadCapacityUnits: 1
-  #         WriteCapacityUnits: 1
-
-package: 
-  individually: true
-  exclude: 
-    - node_modules/dynamodb-localhost/**
-    - node_modules/serverless-dynamo-local/**
-    - node_modules/serverless-offline/**
-
-    
-
+  Resources:
+    childrenTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: "${self:provider.environment.DYNAMODB_TABLE}"
+        AttributeDefinitions:
+          - AttributeName: KidId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: KidId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
