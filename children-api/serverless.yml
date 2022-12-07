@@ -6,7 +6,7 @@ frameworkVersion: '3'
 provider: 
   name: 'aws'
   runtime: 'nodejs18.x'
-  region: eu-west-2
+  region: ${env:REGION, 'eu-west-2'}
   stage: dev
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
@@ -92,21 +92,21 @@ custom:
 
 # Resources your functions use
 resources: # CloudFormation template syntax from here on.
-  Resources:
-    childrenTable:
-      Type: AWS::DynamoDB::Table
-      DeletionPolicy: Retain
-      Properties:
-        TableName: "${self:provider.environment.DYNAMODB_TABLE}"
-        AttributeDefinitions:
-          - AttributeName: KidId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: KidId
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+  # Resources:
+  #   childrenTable:
+  #     Type: AWS::DynamoDB::Table
+  #     DeletionPolicy: Retain
+  #     Properties:
+  #       TableName: "${self:provider.environment.DYNAMODB_TABLE}"
+  #       AttributeDefinitions:
+  #         - AttributeName: KidId
+  #           AttributeType: S
+  #       KeySchema:
+  #         - AttributeName: KidId
+  #           KeyType: HASH
+  #       ProvisionedThroughput:
+  #         ReadCapacityUnits: 1
+  #         WriteCapacityUnits: 1
 
 package: 
   individually: true
