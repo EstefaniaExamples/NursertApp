@@ -1,6 +1,7 @@
 # package directories
 children-api/node_modules
 children-api/jspm_packages
+node_modules
 
 # Serverless directories
 children-api/.serverless

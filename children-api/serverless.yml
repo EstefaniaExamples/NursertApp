@@ -27,12 +27,6 @@ provider:
 
 package: 
   individually: true
-  patterns: 
-    - '!**/*'
-    - package.json
-    - config/**/*
-    - dist/**/*
-    - node_modules/**/*
 
 # Serverless functions
 functions: 
@@ -74,17 +68,22 @@ functions:
 
 # Serverless plugins
 plugins:
-  - serverless-webpack
+  - serverless-esbuild
   - serverless-offline     # this plugin enables us to run our application and Lambda functions locally
   - serverless-dynamodb-local
   - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
   # - serverless-plugin-typescript
 
 custom:
-  webpack:
-    webpackConfig: 'webpack.config.js' # Name of webpack configuration file
-    includeModules: true # Node modules configuration for packaging
-    packager: 'npm' # Packager that will be used to package your external 
+  esbuild: 
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude: ['aws-sdk']
+    target: 'node16'
+    define: { 'require.resolve': undefined }
+    platform: 'node'
+    concurrency: 10
   serverless-offline:
     httpPort: 3003
   dynamodb:
