@@ -73,7 +73,7 @@ describe('Add function Tests', () => {
 
     expect(result.statusCode).toEqual(500)
     expect(JSON.parse(result.body).message).toEqual(
-      'Unexpected token a in JSON at position 0'
+      'Unexpected token \'a\', \"any string\"... is not valid JSON'
     )
   })
 })

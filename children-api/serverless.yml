@@ -2,6 +2,15 @@ service: 'children-api'
 
 frameworkVersion: '3'
 
+# Serverless plugins
+plugins:
+  - serverless-esbuild
+  # - serverless-offline     # this plugin enables us to run our application and Lambda functions locally
+  # - serverless-dynamodb-local
+  - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
+  - serverless-plugin-typescript
+  - serverless-plugin-canary-deployments
+
 # Cloud provider
 provider: 
   name: 'aws'
@@ -23,7 +32,6 @@ provider:
             - dynamodb:DeleteItem
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
           # arn:aws:dynamodb:eu-west-2:634692860368:table/NurseryChildren
-
 
 package: 
   individually: true
@@ -64,17 +72,26 @@ functions:
     events:
       - httpApi:
           path: /meals
-          method: get      
+          method: get    
 
-# Serverless plugins
-plugins:
-  - serverless-esbuild
-  - serverless-offline     # this plugin enables us to run our application and Lambda functions locally
-  - serverless-dynamodb-local
-  - serverless-dotenv-plugin    # to enable us load .env variables into our Lambda environment
-  # - serverless-plugin-typescript
+  # preHook:
+  #   handler: hooks.pre
+  postHook:
+    handler: src/test-hook/index.testHook  
 
 custom:
+  deploymentSettings:
+    alias: Dev  # name that will be used to create the Lambda function alias
+    type: Linear10PercentEvery1Minute
+    # preTrafficHook: preHook   # validation Lambda function that runs before traffic shifting. It must use the CodeDeploy SDK to notify about this step's success or failure
+    postTrafficHook: postHook  #  validation Lambda function that runs after traffic shifting. It must use the CodeDeploy SDK to notify about this step's success or failure
+    # alarms:  #  list of CloudWatch alarms. If any of them is triggered during the deployment, the associated Lambda function will automatically roll back to the previous version
+    #   - FooAlarm          # When a string is provided, it expects the alarm Logical ID
+    #   - name: BarAlarm    # When an object is provided, it expects the alarm name in the name property
+    stages: 
+      - dev
+      - pro 
+
   esbuild: 
     bundle: true
     minify: false
@@ -84,15 +101,16 @@ custom:
     define: { 'require.resolve': undefined }
     platform: 'node'
     concurrency: 10
-  serverless-offline:
-    httpPort: 3003
-  dynamodb:
-    start:
-      port: 5001
-      inMemory: true
-      migrate: true
-    stages:
-      - dev
+  # serverless-offline:
+  #   httpPort: 3003
+  # dynamodb:
+  #   start:
+  #     port: 5001
+  #     inMemory: true
+  #     migrate: true
+  #   stages:
+  #     - dev
+
 
 # Resources your functions use
 resources: # CloudFormation template syntax from here on.
