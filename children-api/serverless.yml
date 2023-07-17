@@ -82,7 +82,7 @@ functions:
 custom:
   deploymentSettings:
     alias: Dev  # name that will be used to create the Lambda function alias
-    type: Linear10PercentEvery1Minute
+    type: Canary10Percent10Minutes
     # preTrafficHook: preHook   # validation Lambda function that runs before traffic shifting. It must use the CodeDeploy SDK to notify about this step's success or failure
     postTrafficHook: postHook  #  validation Lambda function that runs after traffic shifting. It must use the CodeDeploy SDK to notify about this step's success or failure
     # alarms:  #  list of CloudWatch alarms. If any of them is triggered during the deployment, the associated Lambda function will automatically roll back to the previous version
