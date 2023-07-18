@@ -38,7 +38,7 @@ export const postKo: Handler = async (event) => {
       // Inform CodeDeploy that the hook has completed successfully
       await signalHookCompletionKo(deploymentId, lifecycleEventHookExecutionId);
 
-      console.log('afterAllowTraffic hook completed successfully');
+      console.log('afterAllowTraffic hook completed failed');
 }
 
 // Function to signal CodeDeploy that the hook has completed successfully
