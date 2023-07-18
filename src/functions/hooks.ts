@@ -1,11 +1,10 @@
-import { CodeDeploy, CodeDeployClient, PutLifecycleEventHookExecutionStatusCommand } from '@aws-sdk/client-codedeploy';
+import { CodeDeploy } from '@aws-sdk/client-codedeploy';
 import { Handler } from 'aws-lambda';
 
-const codedeployClient = new CodeDeployClient({});
 const codeDeploy = new CodeDeploy({});
 
-export const postOk: Handler = async (event, context, callback) => {
-    console.log("Entering PostTraffic Hook!");
+export const postOk: Handler = (event, context, callback) => {
+    console.log("Entering PostTraffic Hook OK!");
 
     // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
     var deploymentId = event.DeploymentId;
@@ -42,8 +41,8 @@ export const postOk: Handler = async (event, context, callback) => {
     });
 }
 
-export const postKo: Handler = async (event, context, callback) => {
-  console.log("Entering PostTraffic Hook!");
+export const postKo: Handler = (event, context, callback) => {
+  console.log("Entering PostTraffic Hook KO!");
     
   // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
   var deploymentId = event.DeploymentId;
