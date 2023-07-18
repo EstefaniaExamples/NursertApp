@@ -1,65 +1,86 @@
-import { CodeDeployClient, PutLifecycleEventHookExecutionStatusCommand } from '@aws-sdk/client-codedeploy';
+import { CodeDeploy, CodeDeployClient, PutLifecycleEventHookExecutionStatusCommand } from '@aws-sdk/client-codedeploy';
 import { Handler } from 'aws-lambda';
 
-export const postOk: Handler = async (event) => {
+const codedeployClient = new CodeDeployClient({});
+const codeDeploy = new CodeDeploy({});
+
+export const postOk: Handler = async (event, context, callback) => {
     console.log("Entering PostTraffic Hook!");
-    	
-    try {
-        // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
-        var deploymentId = event.DeploymentId;
-        var lifecycleEventHookExecutionId = event.LifecycleEventHookExecutionId;
 
-        var functionToTest = process.env.NewVersion;
-        console.log("AfterAllowTraffic hook tests started");
-        console.log("Testing new function version: " + functionToTest);
+    // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
+    var deploymentId = event.DeploymentId;
+    var lifecycleEventHookExecutionId = event.LifecycleEventHookExecutionId;
+    var validationTestResult = "Failed";
 
-        // Inform CodeDeploy that the hook has completed successfully
-        await signalHookCompletionOk(deploymentId, lifecycleEventHookExecutionId);
+    // Perform PostTraffic validation tests here. Set the test result
+    // to "Succeeded" for this tutorial.
+    console.log("This is where PostTraffic validation tests happen.")
+    validationTestResult = "Succeeded";
 
-        console.log('afterAllowTraffic hook completed successfully');
+    var functionToTest = process.env.NewVersion;
+    console.log("AfterAllowTraffic hook tests started");
+    console.log("Testing new function version: " + functionToTest);
 
-    } catch (error) {
-        console.error('afterAllowTraffic hook failed:', error);
-        throw error;
-  }
+    // Complete the PostTraffic hook by sending CodeDeploy the validation status
+    const params = {
+      deploymentId: deploymentId,
+      lifecycleEventHookExecutionId: lifecycleEventHookExecutionId,
+      status: validationTestResult // status can be 'Succeeded' or 'Failed'
+    };
+
+    codeDeploy.putLifecycleEventHookExecutionStatus(params, (err: { stack: any; }, data: any) => {
+      if (err) {
+        // Validation failed.
+        console.log('PostTraffic validation tests failed');
+        console.log(err, err.stack);
+        callback("CodeDeploy Status update failed");
+      } else {
+        // Validation succeeded.
+        console.log("PostTraffic validation tests succeeded");
+        callback(null, "PostTraffic validation tests succeeded");
+      }
+    });
 }
 
-export const postKo: Handler = async (event) => {
+export const postKo: Handler = async (event, context, callback) => {
   console.log("Entering PostTraffic Hook!");
     
-      // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
-      var deploymentId = event.DeploymentId;
-      var lifecycleEventHookExecutionId = event.LifecycleEventHookExecutionId;
+  // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
+  var deploymentId = event.DeploymentId;
+  var lifecycleEventHookExecutionId = event.LifecycleEventHookExecutionId;
+  var validationTestResult = "Failed";
 
-      var functionToTest = process.env.NewVersion;
-      console.log("AfterAllowTraffic hook tests started");
-      console.log("Testing new function version: " + functionToTest);
+  // Perform PostTraffic validation tests here. Set the test result
+  // to "Succeeded" for this tutorial.
+  console.log("This is where PostTraffic validation tests happen.")
+  // validationTestResult = "Succeeded";
 
-      // Inform CodeDeploy that the hook has completed successfully
-      await signalHookCompletionKo(deploymentId, lifecycleEventHookExecutionId);
+  var functionToTest = process.env.NewVersion;
+  console.log("AfterAllowTraffic hook tests started");
+  console.log("Testing new function version: " + functionToTest);
 
-      console.log('afterAllowTraffic hook completed failed');
-}
-
-// Function to signal CodeDeploy that the hook has completed successfully
-const signalHookCompletionOk = async (deploymentId: string, lifecycleEventHookExecutionId: string) => {
-    const codedeployClient = new CodeDeployClient({});
-    await codedeployClient.send(new PutLifecycleEventHookExecutionStatusCommand({
-      deploymentId,
-      lifecycleEventHookExecutionId,
-      status: 'Succeeded'
-    }));
+  // Complete the PostTraffic hook by sending CodeDeploy the validation status
+  const params = {
+    deploymentId: deploymentId,
+    lifecycleEventHookExecutionId: lifecycleEventHookExecutionId,
+    status: validationTestResult // status can be 'Succeeded' or 'Failed'
   };
 
-  // Function to signal CodeDeploy that the hook has completed successfully
-const signalHookCompletionKo = async (deploymentId: string, lifecycleEventHookExecutionId: string) => {
-  const codedeployClient = new CodeDeployClient({});
-  await codedeployClient.send(new PutLifecycleEventHookExecutionStatusCommand({
-    deploymentId,
-    lifecycleEventHookExecutionId,
-    status: 'Failed'
-  }));
-};
+  codeDeploy.putLifecycleEventHookExecutionStatus(params, (err: { stack: any; }, data: any) => {
+    if (err) {
+      // Validation failed.
+      console.log('PostTraffic validation tests failed');
+      console.log(err, err.stack);
+      callback("CodeDeploy Status update failed");
+    } else {
+      // Validation succeeded.
+      console.log("PostTraffic validation tests succeeded");
+      callback(null, "PostTraffic validation tests succeeded");
+    }
+  });
+}
+
+
 
   
   
