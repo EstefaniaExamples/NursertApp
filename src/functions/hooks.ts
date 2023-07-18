@@ -57,7 +57,7 @@ const signalHookCompletionKo = async (deploymentId: string, lifecycleEventHookEx
   await codedeployClient.send(new PutLifecycleEventHookExecutionStatusCommand({
     deploymentId,
     lifecycleEventHookExecutionId,
-    status: 'Failure'
+    status: 'Failed'
   }));
 };
 
