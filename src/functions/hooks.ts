@@ -1,7 +1,7 @@
 import { CodeDeployClient, PutLifecycleEventHookExecutionStatusCommand } from '@aws-sdk/client-codedeploy';
 import { Handler } from 'aws-lambda';
 
-export const post: Handler = async (event) => {
+export const postOk: Handler = async (event) => {
     console.log("Entering PostTraffic Hook!");
     	
     try {
@@ -14,7 +14,7 @@ export const post: Handler = async (event) => {
         console.log("Testing new function version: " + functionToTest);
 
         // Inform CodeDeploy that the hook has completed successfully
-        await signalHookCompletion(deploymentId, lifecycleEventHookExecutionId);
+        await signalHookCompletionOk(deploymentId, lifecycleEventHookExecutionId);
 
         console.log('afterAllowTraffic hook completed successfully');
 
@@ -24,8 +24,25 @@ export const post: Handler = async (event) => {
   }
 }
 
+export const postKo: Handler = async (event) => {
+  console.log("Entering PostTraffic Hook!");
+    
+      // Read the DeploymentId and LifecycleEventHookExecutionId from the event payload
+      var deploymentId = event.DeploymentId;
+      var lifecycleEventHookExecutionId = event.LifecycleEventHookExecutionId;
+
+      var functionToTest = process.env.NewVersion;
+      console.log("AfterAllowTraffic hook tests started");
+      console.log("Testing new function version: " + functionToTest);
+
+      // Inform CodeDeploy that the hook has completed successfully
+      await signalHookCompletionKo(deploymentId, lifecycleEventHookExecutionId);
+
+      console.log('afterAllowTraffic hook completed successfully');
+}
+
 // Function to signal CodeDeploy that the hook has completed successfully
-const signalHookCompletion = async (deploymentId: string, lifecycleEventHookExecutionId: string) => {
+const signalHookCompletionOk = async (deploymentId: string, lifecycleEventHookExecutionId: string) => {
     const codedeployClient = new CodeDeployClient({});
     await codedeployClient.send(new PutLifecycleEventHookExecutionStatusCommand({
       deploymentId,
@@ -33,6 +50,16 @@ const signalHookCompletion = async (deploymentId: string, lifecycleEventHookExec
       status: 'Succeeded'
     }));
   };
+
+  // Function to signal CodeDeploy that the hook has completed successfully
+const signalHookCompletionKo = async (deploymentId: string, lifecycleEventHookExecutionId: string) => {
+  const codedeployClient = new CodeDeployClient({});
+  await codedeployClient.send(new PutLifecycleEventHookExecutionStatusCommand({
+    deploymentId,
+    lifecycleEventHookExecutionId,
+    status: 'Failure'
+  }));
+};
 
   
   

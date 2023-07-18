@@ -58,7 +58,7 @@ functions:
     deploymentSettings:
       # type: Canary10Percent5Minutes
       alias: Live
-      postTrafficHook: postHook
+      postTrafficHook: postHookOk
 
   hello2:
     handler: src/functions/handler2.hello2
@@ -72,7 +72,11 @@ functions:
     deploymentSettings:
       # type: Canary10Percent5Minutes
       alias: Live2
+      postTrafficHook: postHookKo
 
-  postHook:
-    handler: src/functions/hooks.post
+  postHookOk:
+    handler: src/functions/hooks.postOk
+    logRetentionInDays: 7
+  postHookKo:
+    handler: src/functions/hooks.postKo
     logRetentionInDays: 7
