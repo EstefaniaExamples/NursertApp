@@ -1,0 +1,78 @@
+service: nursery-service
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-esbuild
+  - serverless-plugin-log-retention
+  - serverless-plugin-aws-alerts
+  - serverless-plugin-canary-deployments
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  architecture: arm64
+  region: ${env:REGION, 'eu-west-2'}
+  tracing:
+    apiGateway: true
+    lambda: true
+  stage: dev 
+  tags: &tags
+    "user": "nursery-service"
+    "owner": "estefania-castro"
+  stackTags: *tags
+  logs:
+    restApi:
+      format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "caller": "$context.identity.caller", "httpMethod": "$context.httpMethod" }'
+      level: INFO
+      fullExecutionData: false
+
+custom:
+  deploymentSettings:
+    type: Canary10Percent5Minutes
+    # alias: Live
+    stages:
+      - dev
+      - pro
+  esbuild:
+    bundle: true
+    minify: true
+    target: node18
+    define:
+      process.env.NODE_ENV: '"production"'
+    sourcemap: true
+
+package: 
+  individually: true
+
+functions:
+  hello:
+    handler: src/functions/handler.hello
+    description: 'Hello testing'
+    # provisionedConcurrency: 1
+    logRetentionInDays: 7
+    events:
+      - httpApi:
+          method: GET
+          path: /hello
+    deploymentSettings:
+      # type: Canary10Percent5Minutes
+      alias: Live
+      postTrafficHook: postHook
+
+  hello2:
+    handler: src/functions/handler2.hello2
+    description: 'Hello 2 testing'
+    # provisionedConcurrency: 1
+    logRetentionInDays: 7
+    events:
+      - httpApi:
+          method: GET
+          path: /hello2
+    deploymentSettings:
+      # type: Canary10Percent5Minutes
+      alias: Live2
+
+  postHook:
+    handler: src/functions/hooks.post
+    logRetentionInDays: 7
