@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 
-console.log("Hello! version 10 ...");
+console.log("Hello! version 10 !");
 
 export const hello: APIGatewayProxyHandler = async (event, _context) => {
   const response = {

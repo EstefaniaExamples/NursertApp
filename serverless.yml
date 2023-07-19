@@ -7,6 +7,7 @@ plugins:
   - serverless-plugin-log-retention
   - serverless-plugin-aws-alerts
   - serverless-plugin-canary-deployments
+  - ./ci/plugins/technical-config.js
 
 provider:
   name: aws
@@ -16,7 +17,7 @@ provider:
   tracing:
     apiGateway: true
     lambda: true
-  stage: dev 
+  stage: ${opt:stage} 
   tags: &tags
     "user": "nursery-service"
     "owner": "estefania-castro"
@@ -28,6 +29,8 @@ provider:
       fullExecutionData: false
 
 custom:
+  alerts:
+    dashboards: true
   deploymentSettings:
     type: Canary10Percent5Minutes
     # alias: Live
@@ -42,41 +45,66 @@ custom:
       process.env.NODE_ENV: '"production"'
     sourcemap: true
 
+resources:
+  Resources: 
+    GatewayResponseApiConfigurationError: 
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties: 
+        RestApiId: 
+          Ref: 'ApiGatewayRestApi'
+        ResponseType: API_CONFIGURATION_ERROR
+        ResponseTemplates:
+          application/json: "{\"error\":\"bad_request_system_2\",\"error_description\":$context.error.messageString}"
+
 package: 
   individually: true
+  patterns:
+    - config/**/*
+    - '!node_modules'
 
 functions:
   hello:
     handler: src/functions/handler.hello
     description: 'Hello testing'
-    # provisionedConcurrency: 1
+    provisionedConcurrency: 0
     logRetentionInDays: 7
     events:
-      - httpApi:
+      - http:
           method: GET
           path: /hello
     deploymentSettings:
-      # type: Canary10Percent5Minutes
       alias: Live
       postTrafficHook: postHookOk
+      alarm: postHookOkHooAlarmAlarm
 
   hello2:
     handler: src/functions/handler2.hello2
     description: 'Hello 2 testing'
-    # provisionedConcurrency: 1
+    provisionedConcurrency: 0
     logRetentionInDays: 7
     events:
-      - httpApi:
+      - http:
           method: GET
           path: /hello2
+          # arn:aws:lambda:eu-west-2:634692860368:function:nursery-service-dev-hello2:Live2
+          # integration: lambda
     deploymentSettings:
-      # type: Canary10Percent5Minutes
       alias: Live2
-      postTrafficHook: postHookKo
+      postTrafficHook: postHookOk
 
   postHookOk:
     handler: src/functions/hooks.postOk
     logRetentionInDays: 7
+    alarms:
+      - name: hookAlarm
+        namespace: 'AWS/Lambda'
+        metric: Errors
+        threshold: 1
+        statistic: Minimum
+        period: 60
+        evaluationPeriods: 1
+        comparisonOperator: GreaterThanOrEqualToThreshold
+  
   postHookKo:
     handler: src/functions/hooks.postKo
     logRetentionInDays: 7

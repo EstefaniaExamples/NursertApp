@@ -2,12 +2,14 @@
   "name": "nurseryapp",
   "version": "1.0.2",
   "description": "Serverless aws-nodejs-typescript template",
-  "main": "serverless.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
     "node": ">=14.15.0"
+  },
+  "peerDependencies": {
+    "serverless": "^2.60 || 3"
   },
   "dependencies": {
     "@middy/core": "^3.4.0",
