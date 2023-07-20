@@ -11,6 +11,7 @@ plugins:
 
 provider:
   name: aws
+  deploymentMethod: direct
   runtime: nodejs18.x
   architecture: arm64
   region: ${env:REGION, 'eu-west-2'}
@@ -66,7 +67,7 @@ functions:
   hello:
     handler: src/functions/handler.hello
     description: 'Hello testing'
-    provisionedConcurrency: 0
+    # provisionedConcurrency: 0
     logRetentionInDays: 7
     events:
       - http:
@@ -80,7 +81,7 @@ functions:
   hello2:
     handler: src/functions/handler2.hello2
     description: 'Hello 2 testing'
-    provisionedConcurrency: 0
+    # provisionedConcurrency: 1
     logRetentionInDays: 7
     events:
       - http:
@@ -89,6 +90,7 @@ functions:
           # arn:aws:lambda:eu-west-2:634692860368:function:nursery-service-dev-hello2:Live2
           # integration: lambda
     deploymentSettings:
+      provisionedConcurrency: 1
       alias: Live2
       postTrafficHook: postHookOk
 

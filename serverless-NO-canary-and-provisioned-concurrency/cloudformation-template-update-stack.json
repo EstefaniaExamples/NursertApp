@@ -1,0 +1,893 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ServerlessDeploymentBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ServerlessDeploymentBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "ServerlessDeploymentBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "ServerlessDeploymentBucket"
+                      },
+                      "/*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "ServerlessDeploymentBucket"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "HelloLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/nursery-service-dev-hello",
+        "RetentionInDays": 7
+      }
+    },
+    "Hello2LogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/nursery-service-dev-hello2",
+        "RetentionInDays": 7
+      }
+    },
+    "PostHookOkLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/nursery-service-dev-postHookOk",
+        "RetentionInDays": 7
+      }
+    },
+    "PostHookKoLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/nursery-service-dev-postHookKo",
+        "RetentionInDays": 7
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "nursery-service",
+                  "dev",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:CreateLogGroup",
+                    "logs:TagResource"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/nursery-service-dev*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/nursery-service-dev*:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "xray:PutTraceSegments",
+                    "xray:PutTelemetryRecords"
+                  ],
+                  "Resource": [
+                    "*"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              "nursery-service",
+              "dev",
+              {
+                "Ref": "AWS::Region"
+              },
+              "lambdaRole"
+            ]
+          ]
+        }
+      }
+    },
+    "HelloLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/nursery-service/dev/1689860720684-2023-07-20T13:45:20.684Z/hello.zip"
+        },
+        "Handler": "src/functions/handler.hello",
+        "Runtime": "nodejs18.x",
+        "FunctionName": "nursery-service-dev-hello",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Architectures": [
+          "arm64"
+        ],
+        "Description": "Hello testing",
+        "Tags": [
+          {
+            "Key": "user",
+            "Value": "nursery-service"
+          },
+          {
+            "Key": "owner",
+            "Value": "estefania-castro"
+          }
+        ],
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "HelloLogGroup"
+      ]
+    },
+    "Hello2LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/nursery-service/dev/1689860720684-2023-07-20T13:45:20.684Z/hello2.zip"
+        },
+        "Handler": "src/functions/handler2.hello2",
+        "Runtime": "nodejs18.x",
+        "FunctionName": "nursery-service-dev-hello2",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Architectures": [
+          "arm64"
+        ],
+        "Description": "Hello 2 testing",
+        "Tags": [
+          {
+            "Key": "user",
+            "Value": "nursery-service"
+          },
+          {
+            "Key": "owner",
+            "Value": "estefania-castro"
+          }
+        ],
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "Hello2LogGroup"
+      ]
+    },
+    "PostHookOkLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/nursery-service/dev/1689860720684-2023-07-20T13:45:20.684Z/postHookOk.zip"
+        },
+        "Handler": "src/functions/hooks.postOk",
+        "Runtime": "nodejs18.x",
+        "FunctionName": "nursery-service-dev-postHookOk",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Architectures": [
+          "arm64"
+        ],
+        "Tags": [
+          {
+            "Key": "user",
+            "Value": "nursery-service"
+          },
+          {
+            "Key": "owner",
+            "Value": "estefania-castro"
+          }
+        ],
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "PostHookOkLogGroup"
+      ]
+    },
+    "PostHookKoLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/nursery-service/dev/1689860720684-2023-07-20T13:45:20.684Z/postHookKo.zip"
+        },
+        "Handler": "src/functions/hooks.postKo",
+        "Runtime": "nodejs18.x",
+        "FunctionName": "nursery-service-dev-postHookKo",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Architectures": [
+          "arm64"
+        ],
+        "Tags": [
+          {
+            "Key": "user",
+            "Value": "nursery-service"
+          },
+          {
+            "Key": "owner",
+            "Value": "estefania-castro"
+          }
+        ],
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "PostHookKoLogGroup"
+      ]
+    },
+    "HelloLambdaVersiondkHRA5jgbxEzhs6UCZI6cweDU9Is63JawBmphY3s": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "HelloLambdaFunction"
+        },
+        "CodeSha256": "WUs+4TxnL9APaX55L4XHYYF3vYZWhfKXuvj/tzzbBHA=",
+        "Description": "Hello testing"
+      }
+    },
+    "Hello2LambdaVersionFXBMbI2XEnSzbzVcAYOSeelp2Ftuj3v5KaZOEi9mCsI": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Hello2LambdaFunction"
+        },
+        "CodeSha256": "meKk1/soPcfr5X8xxu8683zOls6CiWBZtJ/SS2rLV30=",
+        "Description": "Hello 2 testing"
+      }
+    },
+    "Hello2ProvConcLambdaAlias": {
+      "Type": "AWS::Lambda::Alias",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Hello2LambdaFunction"
+        },
+        "FunctionVersion": {
+          "Fn::GetAtt": [
+            "Hello2LambdaVersionFXBMbI2XEnSzbzVcAYOSeelp2Ftuj3v5KaZOEi9mCsI",
+            "Version"
+          ]
+        },
+        "Name": "provisioned",
+        "ProvisionedConcurrencyConfig": {
+          "ProvisionedConcurrentExecutions": 1
+        }
+      },
+      "DependsOn": "Hello2LambdaFunction"
+    },
+    "PostHookOkLambdaVersion9vzOkXgeegXV1fcbQ61AwPwBg4RBj8fgx8vMULvmiw": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "PostHookOkLambdaFunction"
+        },
+        "CodeSha256": "plsswBx6GGPDSWv7tisrzzZH6lkG7QGNoN2Wf/bBV5s="
+      }
+    },
+    "PostHookKoLambdaVersionMMF2HgKXWvrGK8IXtIRWj5drl1Kj1biOktCbzeqAMgo": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "PostHookKoLambdaFunction"
+        },
+        "CodeSha256": "plsswBx6GGPDSWv7tisrzzZH6lkG7QGNoN2Wf/bBV5s="
+      }
+    },
+    "ApiGatewayRestApi": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "dev-nursery-service",
+        "EndpointConfiguration": {
+          "Types": [
+            "EDGE"
+          ]
+        },
+        "Policy": ""
+      }
+    },
+    "ApiGatewayResourceHello": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "hello",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceHello2": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "hello2",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodHelloGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceHello"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "HelloLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "HelloLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayMethodHello2Get": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceHello2"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "Hello2LambdaFunction",
+                    "Arn"
+                  ]
+                },
+                ":",
+                "provisioned",
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "Hello2LambdaPermissionApiGateway",
+        "Hello2ProvConcLambdaAlias"
+      ]
+    },
+    "ApiGatewayDeployment1689860719158": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StageName": "dev"
+      },
+      "DependsOn": [
+        "ApiGatewayMethodHelloGet",
+        "ApiGatewayMethodHello2Get"
+      ]
+    },
+    "HelloLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "HelloLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "Hello2LambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::Join": [
+            ":",
+            [
+              {
+                "Fn::GetAtt": [
+                  "Hello2LambdaFunction",
+                  "Arn"
+                ]
+              },
+              "provisioned"
+            ]
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      },
+      "DependsOn": "Hello2ProvConcLambdaAlias"
+    },
+    "ApiGatewayLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/api-gateway/nursery-service-dev"
+      }
+    },
+    "CustomApiGatewayAccountCloudWatchRole": {
+      "Type": "Custom::ApiGatewayAccountRole",
+      "Version": 1,
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomDashresourceDashapigwDashcwDashroleLambdaFunction",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "IamRoleCustomResourcesLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "dev",
+                  "nursery-service",
+                  "custom-resources-lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      ":",
+                      [
+                        "arn",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        "iam:",
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        "role/*"
+                      ]
+                    ]
+                  },
+                  "Action": [
+                    "iam:AttachRolePolicy",
+                    "iam:CreateRole",
+                    "iam:ListAttachedRolePolicies",
+                    "iam:PassRole"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      ":",
+                      [
+                        "arn",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        "apigateway:*::/account"
+                      ]
+                    ]
+                  },
+                  "Action": [
+                    "apigateway:GET",
+                    "apigateway:PATCH"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CustomDashresourceDashapigwDashcwDashroleLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/nursery-service/dev/1689860720684-2023-07-20T13:45:20.684Z/custom-resources.zip"
+        },
+        "FunctionName": "nursery-service-dev-custom-resource-apigw-cw-role",
+        "Handler": "api-gateway-cloud-watch-role/handler.handler",
+        "MemorySize": 1024,
+        "Runtime": "nodejs16.x",
+        "Timeout": 180,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleCustomResourcesLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "IamRoleCustomResourcesLambdaExecution"
+      ]
+    },
+    "PostHookOkHookAlarmAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "Namespace": "AWS/Lambda",
+        "MetricName": "Errors",
+        "Threshold": 1,
+        "Period": 60,
+        "EvaluationPeriods": 1,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "OKActions": [],
+        "AlarmActions": [],
+        "InsufficientDataActions": [],
+        "Dimensions": [
+          {
+            "Name": "FunctionName",
+            "Value": {
+              "Ref": "PostHookOkLambdaFunction"
+            }
+          }
+        ],
+        "TreatMissingData": "missing",
+        "Statistic": "Minimum"
+      }
+    },
+    "AlertsDashboard": {
+      "Type": "AWS::CloudWatch::Dashboard",
+      "Properties": {
+        "DashboardName": "nursery-service-dev-eu-west-2",
+        "DashboardBody": "{\"widgets\":[{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":8,\"height\":6,\"properties\":{\"title\":\"Errors\",\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello2\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookOk\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookKo\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":8,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"Errors\",\"view\":\"singleValue\",\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"hello\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"hello2\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"postHookOk\"}],[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"postHookKo\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":14,\"y\":0,\"width\":10,\"height\":6,\"properties\":{\"title\":\"Duration\",\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"p50\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello p50\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"p90\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello p90\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"p50\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello2 p50\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"p90\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello2 p90\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"p50\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookOk p50\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"p90\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookOk p90\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"p50\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookKo p50\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"p90\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookKo p90\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":0,\"y\":6,\"width\":8,\"height\":6,\"properties\":{\"title\":\"Invocations\",\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello\"}],[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello2\"}],[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookOk\"}],[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookKo\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":8,\"y\":6,\"width\":6,\"height\":6,\"properties\":{\"title\":\"Invocations\",\"view\":\"singleValue\",\"metrics\":[[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"hello\"}],[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"hello2\"}],[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"postHookOk\"}],[\"AWS/Lambda\",\"Invocations\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"postHookKo\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":14,\"y\":6,\"width\":10,\"height\":6,\"properties\":{\"title\":\"API Requests\",\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/ApiGateway\",\"5XXError\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"Sum\",\"period\":900}],[\"AWS/ApiGateway\",\"4XXError\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"Sum\",\"period\":900}],[\"AWS/ApiGateway\",\"Count\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"Sum\",\"period\":900}]],\"region\":\"eu-west-2\"}},{\"type\":\"metric\",\"x\":0,\"y\":12,\"width\":8,\"height\":6,\"properties\":{\"title\":\"Throttles\",\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello\"}],[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"hello2\"}],[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookOk\"}],[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"Sum\",\"period\":900,\"region\":\"eu-west-2\",\"label\":\"postHookKo\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":8,\"y\":12,\"width\":6,\"height\":6,\"properties\":{\"title\":\"Throttles\",\"view\":\"singleValue\",\"metrics\":[[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-hello\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"hello\"}],[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-hello2\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"hello2\"}],[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-postHookOk\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"postHookOk\"}],[\"AWS/Lambda\",\"Throttles\",\"FunctionName\",\"nursery-service-dev-postHookKo\",{\"stat\":\"Sum\",\"period\":2592000,\"region\":\"eu-west-2\",\"label\":\"postHookKo\"}]],\"region\":\"eu-west-2\",\"period\":300}},{\"type\":\"metric\",\"x\":14,\"y\":12,\"width\":10,\"height\":6,\"properties\":{\"title\":\"API Latency\",\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/ApiGateway\",\"IntegrationLatency\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"p50\",\"period\":900,\"region\":\"eu-west-2\"}],[\"AWS/ApiGateway\",\"Latency\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"p50\",\"period\":900,\"region\":\"eu-west-2\"}],[\"AWS/ApiGateway\",\"IntegrationLatency\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"p90\",\"period\":900,\"region\":\"eu-west-2\"}],[\"AWS/ApiGateway\",\"Latency\",\"ApiName\",\"dev-nursery-service\",{\"stat\":\"p90\",\"period\":900,\"region\":\"eu-west-2\"}]],\"region\":\"eu-west-2\"}}]}"
+      }
+    },
+    "GatewayResponseApiConfigurationError": {
+      "Type": "AWS::ApiGateway::GatewayResponse",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ResponseType": "API_CONFIGURATION_ERROR",
+        "ResponseTemplates": {
+          "application/json": "{\"error\":\"bad_request_system_2\",\"error_description\":$context.error.messageString}"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": {
+        "Ref": "ServerlessDeploymentBucket"
+      },
+      "Export": {
+        "Name": "sls-nursery-service-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "HelloLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "HelloLambdaVersiondkHRA5jgbxEzhs6UCZI6cweDU9Is63JawBmphY3s"
+      },
+      "Export": {
+        "Name": "sls-nursery-service-dev-HelloLambdaFunctionQualifiedArn"
+      }
+    },
+    "Hello2LambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "Hello2LambdaVersionFXBMbI2XEnSzbzVcAYOSeelp2Ftuj3v5KaZOEi9mCsI"
+      },
+      "Export": {
+        "Name": "sls-nursery-service-dev-Hello2LambdaFunctionQualifiedArn"
+      }
+    },
+    "PostHookOkLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "PostHookOkLambdaVersion9vzOkXgeegXV1fcbQ61AwPwBg4RBj8fgx8vMULvmiw"
+      },
+      "Export": {
+        "Name": "sls-nursery-service-dev-PostHookOkLambdaFunctionQualifiedArn"
+      }
+    },
+    "PostHookKoLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "PostHookKoLambdaVersionMMF2HgKXWvrGK8IXtIRWj5drl1Kj1biOktCbzeqAMgo"
+      },
+      "Export": {
+        "Name": "sls-nursery-service-dev-PostHookKoLambdaFunctionQualifiedArn"
+      }
+    },
+    "ServiceEndpoint": {
+      "Description": "URL of the service endpoint",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiGatewayRestApi"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/dev"
+          ]
+        ]
+      },
+      "Export": {
+        "Name": "sls-nursery-service-dev-ServiceEndpoint"
+      }
+    }
+  }
+}

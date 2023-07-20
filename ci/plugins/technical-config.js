@@ -3,7 +3,7 @@ const { writeFileSync } = require('fs');
 const lodash = require('lodash.get');
 
 class technicalConfigPlugin {
-    constructor(serverless) {
+    constructor(serverless, options) {
         this.serverless = serverless;
         // to bind this plugin to a specific provider
         this.provider = serverless.getProvider('aws'); 
@@ -26,51 +26,98 @@ class technicalConfigPlugin {
         writeFileSync('./config/tech-conf.json', '{}');
     }
 
-    beforePackageFinalize() {
-        console.log('Before package finalize.');
-        const stage = this.serverless.service.provider.stage || this.serverless.service.provider.s || 'dev';
-        console.log(`Stage ...: ${stage}`);
-
-        const functionsWithProvisionedCanary = new Map(); 
-        // const globalCfg = lodash(this.serverless.service, 'custom.deploymentSettings', {}); 
+    getCanaryCfgMap() {
+        const result = new Map(); 
+        const globalCfg = lodash(this.serverless.service, 'custom.deploymentSettings', {}); 
         for (const [functionName, functionCfg] of Object.entries(this.serverless.service.functions)) {
-            // console.log('Function cfg:');
-            // console.log(functionCfg);
-            // const deploymentSettings = Object.assign({}, globalCfg, functionCfg.deploymentSettings);
-            console.log('Function config provisioned concurrency:');
-            console.log(functionCfg.provisionedConcurrency);
-            // console.log(deploymentSettings); 
-            if (functionCfg.provisionedConcurrency != null &&
-                functionCfg.provisionedConcurrency != 0) {
-                functionsWithProvisionedCanary.set(this.provider.naming.getLambdaLogicalId(functionName), functionCfg);
+            const deploymentSettings = Object.assign({}, globalCfg, functionCfg.deploymentSettings);
+            if (deploymentSettings.provisionedConcurrency != null &&
+                deploymentSettings.provisionedConcurrency != 0) {
+                    result.set(this.provider.naming.getLambdaLogicalId(functionName), deploymentSettings);
             }
         }
-        console.log(functionsWithProvisionedCanary); 
 
-        const modifiedAlias = {}; 
-        const cloudFormationResources = this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
-        for (const [key, resource] of Object.entries(cloudFormationResources)) {
-            const { Properties: { FunctionName, Name} } = resource
-            if (FunctionName && FunctionName.hasOwnProperty('Ref')) {
-                const functionName = FunctionName.Ref; 
-                if (functionsWithProvisionedCanary.has(functionName)) {
-                    console.log(`Checking ${key} name ${Name} for ${functionName}`);
-                    const cfg = functionsWithProvisionedCanary.get(functionName);
-                    console.log(`Name ${Name}`);
-                    console.log(`Cfg Alias ${cfg.alias}`);
-                    if (Name ) {
-                        resource.Properties.ProvisionedConcurrencyConfig = {
-                            ProvisionedConcurrentExecutions: cfg.provisionedConcurrency,
-                        };
-                        modifiedAlias[key] = resource; 
-                        console.log(`- Adding concurrency to ${key} alias ${Name}`);
-                    }
+        console.log(result);
+        return result; 
+    }
+
+    get compiledCloudFormationTemplate() { 
+        return this.serverless.service.provider.compiledCloudFormationTemplate
+    }
+
+    beforePackageFinalize() {
+        console.log('Before package finalize.');
+
+        // shorten the name of the "Resources" section on the  template
+        let rsrc = this.serverless.service.provider.compiledCloudFormationTemplate.Resources; 
+
+        console.log(' -------------------------------- AWS::Lambda::Alias --------------------------------')
+        const aliases = Object.keys(rsrc)
+            .filter(name => rsrc[name].Type === 'AWS::Lambda::Alias');
+        console.log(aliases);
+
+        console.log(' -------------------------------- AWS::Logs::LogGroup --------------------------------')
+        const logGroups = Object.keys(rsrc)
+            .filter(name => rsrc[name].Type === 'AWS::Logs::LogGroup');    
+        console.log(logGroups);
+
+        for (let key in rsrc) {
+            if (rsrc[key].Type === 'AWS::Lambda::Alias') {
+                console.log(`Applying provisioned concurrency for ${key}`);
+                rsrc[key].Properties.ProvisionedConcurrencyConfig = {
+                    ProvisionedConcurrentExecutions: canaryCfg.provisionedConcurrency,
+                };
+            }
+            if (rsrc[key].Type === 'AWS::Logs::LogGroup') {
+                if (!rsrc[key].Properties.RetentionInDays || rsrc[key].Properties.RetentionInDays === 'Never expire') {
+                console.log(`Applying retention policy for ${key}`);
+                    rsrc[key].Properties.RetentionInDays = 7;
                 }
             }
         }
+        // const stage = this.serverless.service.provider.stage || this.serverless.service.provider.s || 'dev';
+        // console.log(`Stage ...: ${stage}`);
 
-        console.log(modifiedAlias);
-        Object.assign(this.serverless.service.provider.compiledCloudFormationTemplate.Resources, modifiedAlias);
+        // const canaryConfigMap = this.getCanaryCfgMap(); 
+        // const resources = this.compiledCloudFormationTemplate.Resources;
+
+        // const modifiedAlias = {}; 
+        // for (const [key, resource] of Object.entries(resources)) {
+        //     console.log(resource.Type);
+        //     if (resource.Type === "AWS::Lambda::Alias") {
+        //         const { Properties: { FunctionName, Name}, } = resource; 
+        //         const functionName = FunctionName.Ref || '';
+
+        //         console.log(`Function name: ${functionName} and name ${Name}`)
+        //         if (canaryConfigMap.has(functionName)) {
+        //             const canaryCfg = canaryConfigMap.get(functionName); 
+        //             if (Name === canaryCfg.alias) {
+        //                 resource.Properties.ProvisionedConcurrencyConfig = {
+        //                     ProvisionedConcurrentExecutions: canaryCfg.provisionedConcurrency,
+        //                 };
+        //                 modifiedAlias[key] = resource; 
+        //                 console.log(`- Addind concurrency to ${key} alias ${Name}`);
+        //             }
+        //         }
+        //     }
+        // }
+
+        // By using the combination of Serverless Framework and AWS CloudFormation resources, you can 
+        // apply provisioned concurrency to your Lambdas without using the Lambda integration with API Gateway
+
+        // resources:
+        //     Resources:
+        //         HelloLambdaProvisionedConcurrencyAlias:
+        //         Type: AWS::Lambda::Alias
+        //         Properties:
+        //             FunctionName: ${self:service}-${self:provider.stage}-hello
+        //             Name: live
+        //             ProvisionedConcurrencyConfig:
+        //             ProvisionedConcurrentExecutions: 10
+
+
+        // console.log(modifiedAlias);
+        // Object.assign(this.compiledCloudFormationTemplate.Resources, modifiedAlias);
     }
 
     beforePackageCreateDeploymentArtifacts() {
