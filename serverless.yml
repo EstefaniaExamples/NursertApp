@@ -1,4 +1,4 @@
-service: nursery-service
+service: nursery-backend
 
 frameworkVersion: '3'
 
@@ -20,7 +20,7 @@ provider:
     lambda: true
   stage: ${opt:stage} 
   tags: &tags
-    "user": "nursery-service"
+    "user": "nursery-backend-aws"
     "owner": "estefania-castro"
   stackTags: *tags
   logs:
@@ -33,9 +33,9 @@ custom:
   alerts:
     dashboards: true
   deploymentSettings:
+    type: Canary10Percent5Minutes
     alias: Live
     alarm: postHookOkHooAlarmAlarm
-    type: Canary10Percent5Minutes
     provisionedConcurrency: 0
     stages:
       - dev
