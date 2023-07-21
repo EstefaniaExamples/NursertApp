@@ -4,9 +4,9 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-esbuild
+  - serverless-plugin-canary-deployments
   - serverless-plugin-log-retention
   - serverless-plugin-aws-alerts
-  - serverless-plugin-canary-deployments
   - ./ci/plugins/technical-config.js
 
 provider:
@@ -33,8 +33,10 @@ custom:
   alerts:
     dashboards: true
   deploymentSettings:
+    alias: Live
+    alarm: postHookOkHooAlarmAlarm
     type: Canary10Percent5Minutes
-    # alias: Live
+    provisionedConcurrency: 0
     stages:
       - dev
       - pro
@@ -67,32 +69,26 @@ functions:
   hello:
     handler: src/functions/handler.hello
     description: 'Hello testing'
-    # provisionedConcurrency: 0
+    deploymentSettings:
+      provisionedConcurrency: 0
+      postTrafficHook: postHookOk
     logRetentionInDays: 7
     events:
       - http:
           method: GET
           path: /hello
-    deploymentSettings:
-      alias: Live
-      postTrafficHook: postHookOk
-      alarm: postHookOkHooAlarmAlarm
 
   hello2:
     handler: src/functions/handler2.hello2
     description: 'Hello 2 testing'
-    # provisionedConcurrency: 1
+    deploymentSettings:
+      provisionedConcurrency: 0
+      postTrafficHook: postHookOk
     logRetentionInDays: 7
     events:
       - http:
           method: GET
           path: /hello2
-          # arn:aws:lambda:eu-west-2:634692860368:function:nursery-service-dev-hello2:Live2
-          # integration: lambda
-    deploymentSettings:
-      provisionedConcurrency: 1
-      alias: Live2
-      postTrafficHook: postHookOk
 
   postHookOk:
     handler: src/functions/hooks.postOk
