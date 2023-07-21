@@ -76,35 +76,32 @@ class technicalConfigPlugin {
         //             ProvisionedConcurrencyConfig:
         //                  ProvisionedConcurrentExecutions: 10
 
+
         console.log(' -------------------------------- AWS::Lambda::Alias --------------------------------')
-        const aliases = Object.keys(rsrc)
-            .filter(name => rsrc[name].Type === 'AWS::Lambda::Alias');
-        console.log(aliases);
-
-
         const canaryCfgMap = this.getCanaryCfgMap();
         if (canaryCfgMap.size !== 0) {
             const modifiedAlias = {};
-            for (let key in rsrc) {
-                if (rsrc[key].Type === 'AWS::Lambda::Alias') {
-                    const { Properties: { FunctionName, Name }} = rsrc[key];
-                    const canaryCfg = canaryCfgMap.get(FunctionName.Ref);
-                    if(canaryCfg) {
-                        if (Name === canaryCfg.alias) {
-                            rsrc[key].Properties.ProvisionedConcurrencyConfig = {
-                                ProvisionedConcurrentExecutions: canaryCfg.provisionedConcurrency,
-                            };
-                            modifiedAlias[key] = rsrc[key]; 
-                            console.log(`Applying provisioned concurrency for ${key}`);
-                        } else {
-                            console.log(`Skip applying provisioned concurrency for ${key} - ${Name} != ${canaryCfg.alias}`);
-                        }
+            Object.keys(rsrc)
+            .filter(key => rsrc[key].Type === 'AWS::Lambda::Alias')
+            .forEach(key => {
+                const { Properties: { FunctionName, Name }} = rsrc[key];
+                const canaryCfg = canaryCfgMap.get(FunctionName.Ref);
+                if(canaryCfg) {
+                    if (Name === canaryCfg.alias) {
+                        rsrc[key].Properties.ProvisionedConcurrencyConfig = {
+                            ProvisionedConcurrentExecutions: canaryCfg.provisionedConcurrency,
+                        };
+                        modifiedAlias[key] = rsrc[key]; 
+                        console.log(`Applying provisioned concurrency for ${key}`);
+                    } else {
+                        console.log(`Skip applying provisioned concurrency for ${key} - ${Name} != ${canaryCfg.alias}`);
                     }
                 }
-            }
+            });
             Object.assign(this.compiledCloudFormationTemplate.Resources, modifiedAlias);
+        
         } else {
-            console.log('No functions with provisionded concurrency');
+            console.log('No functions with provisioned concurrency');
         }
     }
 
